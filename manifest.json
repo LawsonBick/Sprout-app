@@ -1,0 +1,24 @@
+{
+  "name": "Sprout — Smart Investing",
+  "short_name": "Sprout",
+  "description": "Learn to invest your money intelligently with portfolio tracking, lessons, and AI insights.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FAF6F1",
+  "theme_color": "#1a5c2e",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icons/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
