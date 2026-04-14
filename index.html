@@ -821,8 +821,14 @@
         .sc-timeframes { display: flex; gap: 6px; margin: 16px 0 12px; }
         .sc-tf-btn { flex: 1; padding: 8px 0; border: none; background: var(--bg-page); border-radius: 10px; font-size: 13px; font-weight: 600; color: var(--text-secondary); cursor: pointer; }
         .sc-tf-btn.active { background: var(--green-dark); color: white; }
-        .sc-canvas-wrap { position: relative; width: 100%; height: 200px; margin-bottom: 16px; }
+        .sc-canvas-wrap { position: relative; width: 100%; height: 200px; margin-bottom: 4px; touch-action: none; }
         .sc-canvas-wrap canvas { width: 100%; height: 100%; }
+        .sc-timestamps { display: flex; justify-content: space-between; padding: 0 2px; margin-bottom: 16px; }
+        .sc-timestamps span { font-size: 10px; color: var(--text-secondary); }
+        .sc-crosshair { position: absolute; top: 0; width: 1px; height: 100%; background: rgba(0,0,0,0.3); pointer-events: none; display: none; }
+        .sc-tooltip { position: absolute; top: -8px; transform: translateX(-50%); background: var(--green-dark); color: white; padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 600; white-space: nowrap; pointer-events: none; display: none; }
+        .sc-dot-indicator { position: absolute; width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--green-dark); background: white; transform: translate(-50%, -50%); pointer-events: none; display: none; }
+        .sc-scrub-date { text-align: center; font-size: 12px; color: var(--text-secondary); margin-top: 4px; height: 16px; }
         .sc-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .sc-stat { background: var(--bg-page); border-radius: 12px; padding: 12px; }
         .sc-stat-label { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
@@ -2594,9 +2600,14 @@ function renderStockChart() {
         <div class="sc-timeframes">
             ${['1D','1W','1M','3M','1Y','ALL'].map(tf => `<button class="sc-tf-btn ${tf === currentChartRange ? 'active' : ''}" onclick="loadChartData('${currentChartTicker}', '${tf}')">${tf}</button>`).join('')}
         </div>
-        <div class="sc-canvas-wrap">
+        <div class="sc-canvas-wrap" id="scCanvasWrap">
             <canvas id="stockChartCanvas" width="600" height="200"></canvas>
+            <div class="sc-crosshair" id="scCrosshair"></div>
+            <div class="sc-tooltip" id="scTooltip"></div>
+            <div class="sc-dot-indicator" id="scDot"></div>
         </div>
+        <div class="sc-timestamps" id="scTimestamps"></div>
+        <div class="sc-scrub-date" id="scScrubDate"></div>
         <div class="sc-stats">
             <div class="sc-stat"><div class="sc-stat-label">High</div><div class="sc-stat-val">$${high.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div></div>
             <div class="sc-stat"><div class="sc-stat-label">Low</div><div class="sc-stat-val">$${low.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div></div>
@@ -2606,6 +2617,24 @@ function renderStockChart() {
     `;
 
     drawStockChart();
+}
+
+let chartPoints = [];
+let chartIsScrubbing = false;
+
+function formatChartDate(ts, range) {
+    const d = new Date(typeof ts === 'number' && ts < 1e12 ? ts * 1000 : ts);
+    if (range === '1D') return d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    if (range === '1W') return d.toLocaleDateString([], { weekday: 'short' });
+    if (range === '1M' || range === '3M') return d.toLocaleDateString([], { month: 'short', day: 'numeric' });
+    if (range === '1Y') return d.toLocaleDateString([], { month: 'short', year: '2-digit' });
+    return d.toLocaleDateString([], { month: 'short', year: 'numeric' });
+}
+
+function formatScrubDate(ts, range) {
+    const d = new Date(typeof ts === 'number' && ts < 1e12 ? ts * 1000 : ts);
+    if (range === '1D') return d.toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+    return d.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
 }
 
 function drawStockChart() {
@@ -2641,11 +2670,11 @@ function drawStockChart() {
     ctx.lineJoin = 'round';
     ctx.lineCap = 'round';
 
-    const points = [];
+    chartPoints = [];
     for (let i = 0; i < prices.length; i++) {
         const x = pad.left + (i / (prices.length - 1)) * (w - pad.left - pad.right);
         const y = pad.top + (1 - (prices[i] - min) / range) * (h - pad.top - pad.bottom);
-        points.push({ x, y });
+        chartPoints.push({ x, y, price: prices[i], ts: d[i].t });
         if (i === 0) ctx.moveTo(x, y);
         else ctx.lineTo(x, y);
     }
@@ -2655,14 +2684,14 @@ function drawStockChart() {
     const gradient = ctx.createLinearGradient(0, 0, 0, h);
     gradient.addColorStop(0, isUp ? 'rgba(45,138,78,0.2)' : 'rgba(229,57,53,0.2)');
     gradient.addColorStop(1, 'rgba(255,255,255,0)');
-    ctx.lineTo(points[points.length - 1].x, h);
-    ctx.lineTo(points[0].x, h);
+    ctx.lineTo(chartPoints[chartPoints.length - 1].x, h);
+    ctx.lineTo(chartPoints[0].x, h);
     ctx.closePath();
     ctx.fillStyle = gradient;
     ctx.fill();
 
     // Current price dot
-    const last = points[points.length - 1];
+    const last = chartPoints[chartPoints.length - 1];
     ctx.beginPath();
     ctx.arc(last.x, last.y, 4, 0, Math.PI * 2);
     ctx.fillStyle = lineColor;
@@ -2674,6 +2703,108 @@ function drawStockChart() {
     ctx.globalAlpha = 0.3;
     ctx.stroke();
     ctx.globalAlpha = 1;
+
+    // Draw timestamps
+    renderTimestamps();
+
+    // Setup scrubbing
+    setupScrubbing();
+}
+
+function renderTimestamps() {
+    const el = document.getElementById('scTimestamps');
+    if (!el || !currentChartData || currentChartData.length === 0) return;
+    const d = currentChartData;
+    const count = 5;
+    const labels = [];
+    for (let i = 0; i < count; i++) {
+        const idx = Math.round(i * (d.length - 1) / (count - 1));
+        labels.push(formatChartDate(d[idx].t, currentChartRange));
+    }
+    el.innerHTML = labels.map(l => `<span>${l}</span>`).join('');
+}
+
+function setupScrubbing() {
+    const wrap = document.getElementById('scCanvasWrap');
+    if (!wrap) return;
+
+    // Remove old listeners by cloning
+    const newWrap = wrap.cloneNode(true);
+    wrap.parentNode.replaceChild(newWrap, wrap);
+
+    const crosshair = newWrap.querySelector('#scCrosshair');
+    const tooltip = newWrap.querySelector('#scTooltip');
+    const dot = newWrap.querySelector('#scDot');
+    const scrubDate = document.getElementById('scScrubDate');
+    const priceEl = document.querySelector('.sc-price');
+    const changeEl = document.querySelector('.sc-change');
+
+    const origPrice = currentChartData[currentChartData.length - 1].p;
+    const firstPrice = currentChartData[0].p;
+    const origChange = ((origPrice - firstPrice) / firstPrice) * 100;
+    const isUpOrig = origChange >= 0;
+
+    function getPointAtX(clientX) {
+        const rect = newWrap.getBoundingClientRect();
+        const x = clientX - rect.left;
+        const ratio = Math.max(0, Math.min(1, x / rect.width));
+        const idx = Math.round(ratio * (chartPoints.length - 1));
+        return { idx, point: chartPoints[idx], localX: x };
+    }
+
+    function showScrub(clientX) {
+        const { idx, point, localX } = getPointAtX(clientX);
+        if (!point) return;
+
+        chartIsScrubbing = true;
+        crosshair.style.display = 'block';
+        tooltip.style.display = 'block';
+        dot.style.display = 'block';
+
+        crosshair.style.left = localX + 'px';
+        tooltip.style.left = localX + 'px';
+        tooltip.textContent = '$' + point.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+        dot.style.left = localX + 'px';
+        dot.style.top = point.y + 'px';
+
+        const isUp = point.price >= firstPrice;
+        dot.style.borderColor = isUp ? '#2d8a4e' : '#E53935';
+
+        if (priceEl) priceEl.textContent = '$' + point.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        if (changeEl) {
+            const ch = ((point.price - firstPrice) / firstPrice) * 100;
+            changeEl.textContent = (ch >= 0 ? '+' : '') + ch.toFixed(2) + '%';
+            changeEl.className = 'sc-change ' + (ch >= 0 ? 'up' : 'down');
+        }
+        if (scrubDate) scrubDate.textContent = formatScrubDate(point.ts, currentChartRange);
+    }
+
+    function hideScrub() {
+        chartIsScrubbing = false;
+        crosshair.style.display = 'none';
+        tooltip.style.display = 'none';
+        dot.style.display = 'none';
+
+        if (priceEl) priceEl.textContent = '$' + origPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        if (changeEl) {
+            changeEl.textContent = (isUpOrig ? '+' : '') + origChange.toFixed(2) + '%';
+            changeEl.className = 'sc-change ' + (isUpOrig ? 'up' : 'down');
+        }
+        if (scrubDate) scrubDate.textContent = '';
+    }
+
+    // Touch events
+    newWrap.addEventListener('touchstart', (e) => { e.preventDefault(); showScrub(e.touches[0].clientX); }, { passive: false });
+    newWrap.addEventListener('touchmove', (e) => { e.preventDefault(); showScrub(e.touches[0].clientX); }, { passive: false });
+    newWrap.addEventListener('touchend', () => hideScrub());
+    newWrap.addEventListener('touchcancel', () => hideScrub());
+
+    // Mouse events
+    newWrap.addEventListener('mousedown', (e) => { e.preventDefault(); showScrub(e.clientX); });
+    newWrap.addEventListener('mousemove', (e) => { if (chartIsScrubbing) showScrub(e.clientX); });
+    newWrap.addEventListener('mouseup', () => hideScrub());
+    newWrap.addEventListener('mouseleave', () => { if (chartIsScrubbing) hideScrub(); });
 }
 
 // ===== NAVIGATION =====
