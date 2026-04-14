@@ -2466,7 +2466,7 @@ const rangeConfig = {
     '1M': { interval: '1d', range: '1mo' },
     '3M': { interval: '1d', range: '3mo' },
     '1Y': { interval: '1wk', range: '1y' },
-    'ALL': { interval: '1mo', range: '5y' },
+    'ALL': { interval: '1mo', range: 'max' },
 };
 
 const cryptoRangeConfig = {
@@ -2503,6 +2503,10 @@ async function loadChartData(ticker, range) {
     currentChartRange = range;
     const isCrypto = !!cryptoIds[ticker];
 
+    // Show loading on timeframe switch
+    const canvasWrap = document.querySelector('.sc-canvas-wrap');
+    if (canvasWrap) canvasWrap.innerHTML = '<div class="sc-loading">Loading...</div>';
+
     try {
         let prices = [];
         let timestamps = [];
@@ -2510,17 +2514,25 @@ async function loadChartData(ticker, range) {
         if (isCrypto) {
             const cfg = cryptoRangeConfig[range];
             const id = cryptoIds[ticker];
-            const url = `https://api.coingecko.com/api/v3/coins/${id}/market_chart?vs_currency=usd&days=${cfg.days}`;
-            const res = await fetch(url);
+            const directUrl = `https://api.coingecko.com/api/v3/coins/${id}/market_chart?vs_currency=usd&days=${cfg.days}`;
+            let res;
+            try {
+                res = await fetch(directUrl);
+                if (!res.ok) throw new Error('Direct failed');
+            } catch {
+                const proxyUrl = `${YAHOO_PROXY}${encodeURIComponent(directUrl)}`;
+                res = await fetch(proxyUrl);
+            }
             const data = await res.json();
-            data.prices.forEach(p => {
-                timestamps.push(p[0]);
-                prices.push(p[1]);
-            });
+            if (data.prices) {
+                data.prices.forEach(p => {
+                    timestamps.push(p[0]);
+                    prices.push(p[1]);
+                });
+            }
         } else {
             const cfg = rangeConfig[range];
-            const yahooTicker = ticker;
-            const url = `${YAHOO_PROXY}${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${yahooTicker}?interval=${cfg.interval}&range=${cfg.range}`)}`;
+            const url = `${YAHOO_PROXY}${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?interval=${cfg.interval}&range=${cfg.range}`)}`;
             const res = await fetch(url);
             const data = await res.json();
             const result = data.chart.result[0];
@@ -2536,13 +2548,19 @@ async function loadChartData(ticker, range) {
             }
         }
 
+        if (clean.length === 0) throw new Error('No data');
         currentChartData = clean;
         renderStockChart();
     } catch (e) {
         console.log('Chart fetch failed:', e);
-        const content = document.getElementById('stockChartContent');
-        content.querySelector('.sc-loading')?.remove();
-        content.innerHTML += `<div class="sc-loading">Unable to load chart data. Try again later.</div>`;
+        // Re-render with error but keep timeframe buttons
+        if (currentChartData && currentChartData.length > 0) {
+            renderStockChart();
+        } else {
+            const content = document.getElementById('stockChartContent');
+            content.querySelector('.sc-loading')?.remove();
+            content.innerHTML += `<div class="sc-loading">Unable to load chart data. Try again later.</div>`;
+        }
     }
 }
 
