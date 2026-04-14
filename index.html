@@ -808,6 +808,27 @@
         }
         .submit-btn:hover { opacity: 0.9; }
 
+        /* ===== STOCK CHART ===== */
+        .sc-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+        .sc-icon { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; }
+        .sc-title { font-family: 'DM Serif Display', serif; font-size: 22px; }
+        .sc-subtitle { font-size: 13px; color: var(--text-secondary); }
+        .sc-price-row { display: flex; align-items: baseline; gap: 10px; margin-bottom: 4px; }
+        .sc-price { font-family: 'DM Serif Display', serif; font-size: 28px; }
+        .sc-change { font-size: 14px; font-weight: 600; padding: 4px 10px; border-radius: 8px; }
+        .sc-change.up { color: var(--green-dark); background: rgba(45,138,78,0.1); }
+        .sc-change.down { color: #E53935; background: rgba(229,57,53,0.1); }
+        .sc-timeframes { display: flex; gap: 6px; margin: 16px 0 12px; }
+        .sc-tf-btn { flex: 1; padding: 8px 0; border: none; background: var(--bg-page); border-radius: 10px; font-size: 13px; font-weight: 600; color: var(--text-secondary); cursor: pointer; }
+        .sc-tf-btn.active { background: var(--green-dark); color: white; }
+        .sc-canvas-wrap { position: relative; width: 100%; height: 200px; margin-bottom: 16px; }
+        .sc-canvas-wrap canvas { width: 100%; height: 100%; }
+        .sc-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .sc-stat { background: var(--bg-page); border-radius: 12px; padding: 12px; }
+        .sc-stat-label { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+        .sc-stat-val { font-size: 16px; font-weight: 700; margin-top: 2px; }
+        .sc-loading { text-align: center; padding: 40px; color: var(--text-secondary); font-size: 14px; }
+
         /* ===== TOAST ===== */
         .toast {
             position: fixed;
@@ -1947,6 +1968,14 @@
     </div>
 </div>
 
+<!-- STOCK CHART MODAL -->
+<div class="modal-overlay" id="stockChartModal">
+    <div class="modal">
+        <div class="modal-handle"></div>
+        <div id="stockChartContent"></div>
+    </div>
+</div>
+
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
@@ -2421,7 +2450,212 @@ async function fetchRealTimePrices() {
 let priceInterval = null;
 function startPriceUpdates() {
     fetchRealTimePrices();
-    priceInterval = setInterval(fetchRealTimePrices, 30000);
+    priceInterval = setInterval(fetchRealTimePrices, 3000);
+}
+
+// ===== STOCK CHART =====
+let currentChartData = null;
+let currentChartTicker = '';
+let currentChartName = '';
+let currentChartColor = '';
+let currentChartRange = '1M';
+
+const rangeConfig = {
+    '1D': { interval: '5m', range: '1d' },
+    '1W': { interval: '15m', range: '5d' },
+    '1M': { interval: '1d', range: '1mo' },
+    '3M': { interval: '1d', range: '3mo' },
+    '1Y': { interval: '1wk', range: '1y' },
+    'ALL': { interval: '1mo', range: '5y' },
+};
+
+const cryptoRangeConfig = {
+    '1D': { days: '1' },
+    '1W': { days: '7' },
+    '1M': { days: '30' },
+    '3M': { days: '90' },
+    '1Y': { days: '365' },
+    'ALL': { days: 'max' },
+};
+
+async function openStockChart(ticker, name, color) {
+    currentChartTicker = ticker;
+    currentChartName = name;
+    currentChartColor = color;
+    currentChartRange = '1M';
+
+    const content = document.getElementById('stockChartContent');
+    content.innerHTML = `
+        <div class="sc-header">
+            <div class="sc-icon" style="background:${color}15; color:${color}">${ticker.substring(0, 2)}</div>
+            <div>
+                <div class="sc-title">${ticker}</div>
+                <div class="sc-subtitle">${name}</div>
+            </div>
+        </div>
+        <div class="sc-loading">Loading chart data...</div>
+    `;
+    document.getElementById('stockChartModal').classList.add('show');
+    await loadChartData(ticker, '1M');
+}
+
+async function loadChartData(ticker, range) {
+    currentChartRange = range;
+    const isCrypto = !!cryptoIds[ticker];
+
+    try {
+        let prices = [];
+        let timestamps = [];
+
+        if (isCrypto) {
+            const cfg = cryptoRangeConfig[range];
+            const id = cryptoIds[ticker];
+            const url = `https://api.coingecko.com/api/v3/coins/${id}/market_chart?vs_currency=usd&days=${cfg.days}`;
+            const res = await fetch(url);
+            const data = await res.json();
+            data.prices.forEach(p => {
+                timestamps.push(p[0]);
+                prices.push(p[1]);
+            });
+        } else {
+            const cfg = rangeConfig[range];
+            const yahooTicker = ticker;
+            const url = `${YAHOO_PROXY}${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${yahooTicker}?interval=${cfg.interval}&range=${cfg.range}`)}`;
+            const res = await fetch(url);
+            const data = await res.json();
+            const result = data.chart.result[0];
+            timestamps = result.timestamp || [];
+            prices = result.indicators.quote[0].close || [];
+        }
+
+        // Filter out nulls
+        const clean = [];
+        for (let i = 0; i < prices.length; i++) {
+            if (prices[i] !== null && prices[i] !== undefined) {
+                clean.push({ t: timestamps[i], p: prices[i] });
+            }
+        }
+
+        currentChartData = clean;
+        renderStockChart();
+    } catch (e) {
+        console.log('Chart fetch failed:', e);
+        const content = document.getElementById('stockChartContent');
+        content.querySelector('.sc-loading')?.remove();
+        content.innerHTML += `<div class="sc-loading">Unable to load chart data. Try again later.</div>`;
+    }
+}
+
+function renderStockChart() {
+    const d = currentChartData;
+    if (!d || d.length === 0) return;
+
+    const firstPrice = d[0].p;
+    const lastPrice = d[d.length - 1].p;
+    const change = lastPrice - firstPrice;
+    const changePct = (change / firstPrice) * 100;
+    const isUp = change >= 0;
+    const high = Math.max(...d.map(x => x.p));
+    const low = Math.min(...d.map(x => x.p));
+    const avg = d.reduce((s, x) => s + x.p, 0) / d.length;
+    const color = currentChartColor;
+
+    const content = document.getElementById('stockChartContent');
+    content.innerHTML = `
+        <div class="sc-header">
+            <div class="sc-icon" style="background:${color}15; color:${color}">${currentChartTicker.substring(0, 2)}</div>
+            <div>
+                <div class="sc-title">${currentChartTicker}</div>
+                <div class="sc-subtitle">${currentChartName}</div>
+            </div>
+        </div>
+        <div class="sc-price-row">
+            <div class="sc-price">$${lastPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+            <div class="sc-change ${isUp ? 'up' : 'down'}">${isUp ? '+' : ''}${changePct.toFixed(2)}%</div>
+        </div>
+        <div class="sc-timeframes">
+            ${['1D','1W','1M','3M','1Y','ALL'].map(tf => `<button class="sc-tf-btn ${tf === currentChartRange ? 'active' : ''}" onclick="loadChartData('${currentChartTicker}', '${tf}')">${tf}</button>`).join('')}
+        </div>
+        <div class="sc-canvas-wrap">
+            <canvas id="stockChartCanvas" width="600" height="200"></canvas>
+        </div>
+        <div class="sc-stats">
+            <div class="sc-stat"><div class="sc-stat-label">High</div><div class="sc-stat-val">$${high.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div></div>
+            <div class="sc-stat"><div class="sc-stat-label">Low</div><div class="sc-stat-val">$${low.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div></div>
+            <div class="sc-stat"><div class="sc-stat-label">Average</div><div class="sc-stat-val">$${avg.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div></div>
+            <div class="sc-stat"><div class="sc-stat-label">Change</div><div class="sc-stat-val" style="color:${isUp ? 'var(--green-dark)' : '#E53935'}">${isUp ? '+' : ''}$${Math.abs(change).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div></div>
+        </div>
+    `;
+
+    drawStockChart();
+}
+
+function drawStockChart() {
+    const canvas = document.getElementById('stockChartCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.parentElement.getBoundingClientRect();
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    canvas.style.width = rect.width + 'px';
+    canvas.style.height = rect.height + 'px';
+    ctx.scale(dpr, dpr);
+
+    const w = rect.width;
+    const h = rect.height;
+    const d = currentChartData;
+    const pad = { top: 10, bottom: 10, left: 0, right: 0 };
+
+    const prices = d.map(x => x.p);
+    const min = Math.min(...prices);
+    const max = Math.max(...prices);
+    const range = max - min || 1;
+    const isUp = prices[prices.length - 1] >= prices[0];
+    const lineColor = isUp ? '#2d8a4e' : '#E53935';
+
+    ctx.clearRect(0, 0, w, h);
+
+    // Draw line
+    ctx.beginPath();
+    ctx.strokeStyle = lineColor;
+    ctx.lineWidth = 2.5;
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+
+    const points = [];
+    for (let i = 0; i < prices.length; i++) {
+        const x = pad.left + (i / (prices.length - 1)) * (w - pad.left - pad.right);
+        const y = pad.top + (1 - (prices[i] - min) / range) * (h - pad.top - pad.bottom);
+        points.push({ x, y });
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+
+    // Gradient fill
+    const gradient = ctx.createLinearGradient(0, 0, 0, h);
+    gradient.addColorStop(0, isUp ? 'rgba(45,138,78,0.2)' : 'rgba(229,57,53,0.2)');
+    gradient.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.lineTo(points[points.length - 1].x, h);
+    ctx.lineTo(points[0].x, h);
+    ctx.closePath();
+    ctx.fillStyle = gradient;
+    ctx.fill();
+
+    // Current price dot
+    const last = points[points.length - 1];
+    ctx.beginPath();
+    ctx.arc(last.x, last.y, 4, 0, Math.PI * 2);
+    ctx.fillStyle = lineColor;
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(last.x, last.y, 7, 0, Math.PI * 2);
+    ctx.strokeStyle = lineColor;
+    ctx.lineWidth = 1.5;
+    ctx.globalAlpha = 0.3;
+    ctx.stroke();
+    ctx.globalAlpha = 1;
 }
 
 // ===== NAVIGATION =====
@@ -2451,7 +2685,7 @@ function renderHoldings() {
         const alloc = (value / total * 100);
         const sparkId = 'spark-' + i;
         return `
-            <div class="holding">
+            <div class="holding" onclick="openStockChart('${h.ticker}', '${h.name.replace(/'/g, "\\'")}', '${h.color}')" style="cursor:pointer">
                 <div class="holding-icon" style="background: ${h.color}15; color: ${h.color}">
                     ${h.ticker.substring(0, 2)}
                 </div>
@@ -2658,7 +2892,7 @@ function renderNews() {
 function renderMovers() {
     const list = document.getElementById('moversList');
     list.innerHTML = movers.map(m => `
-        <div class="watchlist-item">
+        <div class="watchlist-item" onclick="openStockChart('${m.ticker}', '${m.name.replace(/'/g, "\\'")}', '${m.color}')" style="cursor:pointer">
             <div class="holding-icon" style="background: ${m.color}15; color: ${m.color}">${m.ticker.substring(0, 2)}</div>
             <div class="holding-info">
                 <div class="holding-name">${m.ticker}</div>
