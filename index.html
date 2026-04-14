@@ -2160,6 +2160,42 @@ const discoverUsers = [
         { ticker: 'AMZN', name: 'Amazon.com', shares: 18, price: 186.90, change: 1.5, alloc: 13 },
         { ticker: 'NVDA', name: 'NVIDIA Corp.', shares: 5, price: 878.40, change: 4.2, alloc: 15 },
       ]},
+    { name: 'Elon Musk', handle: '@elonmusk', color: '#37474F', initials: 'EM', isPublic: true, portfolio: '+482% all time', followers: 195000000, totalValue: 248000000000, verified: true,
+      holdings: [
+        { ticker: 'TSLA', name: 'Tesla Inc.', shares: 411062076, price: 182.50, change: -1.8, alloc: 72 },
+        { ticker: 'XCOM', name: 'X Corp (Private)', shares: 1, price: 19000000000, change: 0, alloc: 12 },
+        { ticker: 'SPACEX', name: 'SpaceX (Private)', shares: 1, price: 30000000000, change: 0, alloc: 14 },
+        { ticker: 'BTC', name: 'Bitcoin', shares: 0, price: 67500, change: 3.1, alloc: 2 },
+      ]},
+    { name: 'Mark Zuckerberg', handle: '@zuck', color: '#1877F2', initials: 'MZ', isPublic: true, portfolio: '+340% all time', followers: 120000000, totalValue: 177000000000, verified: true,
+      holdings: [
+        { ticker: 'META', name: 'Meta Platforms', shares: 350000000, price: 512.30, change: 2.4, alloc: 92 },
+        { ticker: 'BOND', name: 'Treasury Bonds', shares: 1, price: 10000000000, change: 0.05, alloc: 5 },
+        { ticker: 'RE', name: 'Real Estate Holdings', shares: 1, price: 5000000000, change: 0, alloc: 3 },
+      ]},
+    { name: 'Tim Cook', handle: '@tim_cook', color: '#333333', initials: 'TC', isPublic: true, portfolio: '+215% all time', followers: 14000000, totalValue: 1800000000, verified: true,
+      holdings: [
+        { ticker: 'AAPL', name: 'Apple Inc.', shares: 3280000, price: 192.30, change: 1.85, alloc: 78 },
+        { ticker: 'VOO', name: 'Vanguard S&P 500', shares: 20000, price: 438.20, change: 0.72, alloc: 8 },
+        { ticker: 'BRK.B', name: 'Berkshire Hathaway', shares: 15000, price: 412.50, change: 0.3, alloc: 6 },
+        { ticker: 'GOOGL', name: 'Alphabet Inc.', shares: 40000, price: 165.40, change: 0.8, alloc: 4 },
+        { ticker: 'BND', name: 'Bond Index', shares: 50000, price: 72.10, change: 0.1, alloc: 4 },
+      ]},
+    { name: 'Satya Nadella', handle: '@satyanadella', color: '#00A4EF', initials: 'SN', isPublic: true, portfolio: '+398% all time', followers: 9500000, totalValue: 850000000, verified: true,
+      holdings: [
+        { ticker: 'MSFT', name: 'Microsoft Corp.', shares: 1500000, price: 415.60, change: 0.6, alloc: 82 },
+        { ticker: 'AAPL', name: 'Apple Inc.', shares: 50000, price: 192.30, change: 1.85, alloc: 5 },
+        { ticker: 'VOO', name: 'Vanguard S&P 500', shares: 30000, price: 438.20, change: 0.72, alloc: 7 },
+        { ticker: 'AMZN', name: 'Amazon.com', shares: 25000, price: 186.90, change: 1.5, alloc: 6 },
+      ]},
+    { name: 'Sundar Pichai', handle: '@sundarpichai', color: '#4285F4', initials: 'SP', isPublic: true, portfolio: '+310% all time', followers: 7200000, totalValue: 1200000000, verified: true,
+      holdings: [
+        { ticker: 'GOOGL', name: 'Alphabet Inc.', shares: 5500000, price: 165.40, change: 0.8, alloc: 85 },
+        { ticker: 'MSFT', name: 'Microsoft Corp.', shares: 20000, price: 415.60, change: 0.6, alloc: 4 },
+        { ticker: 'AAPL', name: 'Apple Inc.', shares: 30000, price: 192.30, change: 1.85, alloc: 3 },
+        { ticker: 'VOO', name: 'Vanguard S&P 500', shares: 40000, price: 438.20, change: 0.72, alloc: 5 },
+        { ticker: 'BTC', name: 'Bitcoin', shares: 50, price: 67500, change: 3.1, alloc: 3 },
+      ]},
 ];
 
 let isAccountPublic = false;
@@ -2664,8 +2700,8 @@ function renderDiscover() {
             <div class="public-portfolio-header">
                 <div class="public-portfolio-avatar" style="background: ${u.color}">${u.initials}</div>
                 <div style="flex:1">
-                    <div class="public-portfolio-name">${u.name}</div>
-                    <div class="public-portfolio-handle">${u.handle} · ${u.followers} followers</div>
+                    <div class="public-portfolio-name">${u.name}${u.verified ? ' <span class="search-result-badge">✓ Verified</span>' : ''}</div>
+                    <div class="public-portfolio-handle">${u.handle} · ${formatFollowers(u.followers)} followers</div>
                 </div>
                 <button class="follow-btn follow" onclick="event.stopPropagation(); this.classList.toggle('follow'); this.classList.toggle('following'); this.textContent = this.classList.contains('following') ? 'Following' : 'Follow'; showToast(this.classList.contains('following') ? 'Following ' + '${u.name}' : 'Unfollowed')">Follow</button>
             </div>
@@ -2696,14 +2732,14 @@ function viewPortfolio(index) {
         <div class="portfolio-viewer-header">
             <div class="pv-avatar" style="background: ${u.color}">${u.initials}</div>
             <div>
-                <div class="pv-name">${u.name}</div>
-                <div class="pv-handle">${u.handle} · ${u.followers} followers</div>
+                <div class="pv-name">${u.name}${u.verified ? ' <span class="search-result-badge">✓ Verified</span>' : ''}</div>
+                <div class="pv-handle">${u.handle} · ${formatFollowers(u.followers)} followers</div>
             </div>
         </div>
 
         <div class="pv-meta">
             <div class="pv-meta-item">
-                <div class="pv-meta-val">$${u.totalValue.toLocaleString()}</div>
+                <div class="pv-meta-val">${u.totalValue >= 1000000000 ? '$' + (u.totalValue / 1000000000).toFixed(0) + 'B' : u.totalValue >= 1000000 ? '$' + (u.totalValue / 1000000).toFixed(0) + 'M' : '$' + u.totalValue.toLocaleString()}</div>
                 <div class="pv-meta-label">Portfolio Value</div>
             </div>
             <div class="pv-meta-item">
