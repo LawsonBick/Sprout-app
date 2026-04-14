@@ -1198,6 +1198,96 @@
             border-radius: 12px;
         }
 
+        /* ===== PORTFOLIO VIEWER ===== */
+        .portfolio-viewer-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 6px;
+        }
+        .pv-avatar {
+            width: 52px; height: 52px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px;
+            font-weight: 700;
+            color: white;
+            flex-shrink: 0;
+        }
+        .pv-name { font-size: 18px; font-weight: 700; }
+        .pv-handle { font-size: 13px; color: var(--text-muted); }
+        .pv-meta {
+            display: flex;
+            gap: 16px;
+            margin: 16px 0;
+        }
+        .pv-meta-item {
+            flex: 1;
+            background: var(--bg-card-alt);
+            border-radius: var(--radius-sm);
+            padding: 12px;
+            text-align: center;
+        }
+        .pv-meta-val {
+            font-size: 18px;
+            font-weight: 700;
+            font-family: 'DM Serif Display', serif;
+        }
+        .pv-meta-val.green { color: var(--green); }
+        .pv-meta-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-top: 2px;
+        }
+        .pv-holding {
+            display: flex;
+            align-items: center;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--border);
+            gap: 12px;
+        }
+        .pv-holding:last-child { border-bottom: none; }
+        .pv-ticker-icon {
+            width: 42px; height: 42px;
+            border-radius: 12px;
+            background: var(--green-pale);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700;
+            font-size: 13px;
+            color: var(--green-dark);
+            flex-shrink: 0;
+        }
+        .pv-holding-info { flex: 1; }
+        .pv-holding-name { font-weight: 600; font-size: 15px; }
+        .pv-holding-detail { font-size: 12px; color: var(--text-muted); }
+        .pv-holding-right { text-align: right; flex-shrink: 0; }
+        .pv-holding-alloc { font-weight: 700; font-size: 15px; color: var(--green-dark); }
+        .pv-holding-change { font-size: 12px; font-weight: 500; }
+        .pv-holding-change.up { color: var(--green); }
+        .pv-holding-change.down { color: var(--red); }
+        .pv-alloc-bar {
+            height: 4px;
+            background: var(--bg-card-alt);
+            border-radius: 2px;
+            margin-top: 6px;
+            overflow: hidden;
+        }
+        .pv-alloc-fill {
+            height: 100%;
+            border-radius: 2px;
+            background: var(--green-gradient);
+        }
+        .pv-section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
         /* ===== ANIMATIONS ===== */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(8px); }
@@ -1547,6 +1637,14 @@
     </div>
 </div>
 
+<!-- PORTFOLIO VIEWER MODAL -->
+<div class="modal-overlay" id="portfolioViewerModal">
+    <div class="modal">
+        <div class="modal-handle"></div>
+        <div id="portfolioViewerContent"></div>
+    </div>
+</div>
+
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
@@ -1718,11 +1816,42 @@ const following = [
 ];
 
 const discoverUsers = [
-    { name: 'Alex Chen', handle: '@alex_chen', color: '#00695C', initials: 'AC', isPublic: true, portfolio: '+31.7% all time', holdings: ['NVDA', 'TSLA', 'AMD', 'MSFT', 'AAPL'], followers: 842 },
-    { name: 'Jordan B.', handle: '@jordan_b', color: '#4527A0', initials: 'JB', isPublic: true, portfolio: '+15.3% all time', holdings: ['VTI', 'VXUS', 'BND', 'VNQ'], followers: 356 },
-    { name: 'Mei Lin', handle: '@mei_invests', color: '#AD1457', initials: 'ML', isPublic: true, portfolio: '+28.9% all time', holdings: ['QQQ', 'AAPL', 'GOOGL', 'META'], followers: 1205 },
-    { name: 'David P.', handle: '@david_p', color: '#1565C0', initials: 'DP', isPublic: true, portfolio: '+9.1% all time', holdings: ['VOO', 'SCHD', 'VYM'], followers: 198 },
-    { name: 'Tasha R.', handle: '@tasha_r', color: '#EF6C00', initials: 'TR', isPublic: true, portfolio: '+19.6% all time', holdings: ['SPY', 'BTC', 'AAPL', 'AMZN', 'NVDA'], followers: 673 },
+    { name: 'Alex Chen', handle: '@alex_chen', color: '#00695C', initials: 'AC', isPublic: true, portfolio: '+31.7% all time', followers: 842, totalValue: 48250,
+      holdings: [
+        { ticker: 'NVDA', name: 'NVIDIA Corp.', shares: 12, price: 878.40, change: 4.2, alloc: 35 },
+        { ticker: 'TSLA', name: 'Tesla Inc.', shares: 25, price: 182.50, change: -1.8, alloc: 15 },
+        { ticker: 'AMD', name: 'Advanced Micro', shares: 40, price: 168.30, change: 2.1, alloc: 22 },
+        { ticker: 'MSFT', name: 'Microsoft Corp.', shares: 8, price: 415.60, change: 0.6, alloc: 14 },
+        { ticker: 'AAPL', name: 'Apple Inc.', shares: 15, price: 192.30, change: 1.2, alloc: 14 },
+      ]},
+    { name: 'Jordan B.', handle: '@jordan_b', color: '#4527A0', initials: 'JB', isPublic: true, portfolio: '+15.3% all time', followers: 356, totalValue: 32100,
+      holdings: [
+        { ticker: 'VTI', name: 'Vanguard Total Market', shares: 45, price: 248.60, change: 0.5, alloc: 45 },
+        { ticker: 'VXUS', name: 'Vanguard Intl.', shares: 60, price: 58.40, change: -0.3, alloc: 20 },
+        { ticker: 'BND', name: 'Vanguard Bond', shares: 80, price: 72.10, change: 0.1, alloc: 25 },
+        { ticker: 'VNQ', name: 'Vanguard REIT', shares: 30, price: 84.20, change: -0.6, alloc: 10 },
+      ]},
+    { name: 'Mei Lin', handle: '@mei_invests', color: '#AD1457', initials: 'ML', isPublic: true, portfolio: '+28.9% all time', followers: 1205, totalValue: 67800,
+      holdings: [
+        { ticker: 'QQQ', name: 'Invesco Nasdaq 100', shares: 30, price: 478.90, change: 1.1, alloc: 30 },
+        { ticker: 'AAPL', name: 'Apple Inc.', shares: 35, price: 192.30, change: 1.2, alloc: 22 },
+        { ticker: 'GOOGL', name: 'Alphabet Inc.', shares: 20, price: 165.40, change: 0.8, alloc: 18 },
+        { ticker: 'META', name: 'Meta Platforms', shares: 18, price: 512.30, change: 2.4, alloc: 30 },
+      ]},
+    { name: 'David P.', handle: '@david_p', color: '#1565C0', initials: 'DP', isPublic: true, portfolio: '+9.1% all time', followers: 198, totalValue: 18400,
+      holdings: [
+        { ticker: 'VOO', name: 'Vanguard S&P 500', shares: 20, price: 438.20, change: 0.7, alloc: 50 },
+        { ticker: 'SCHD', name: 'Schwab Dividend', shares: 45, price: 78.60, change: 0.3, alloc: 30 },
+        { ticker: 'VYM', name: 'Vanguard High Div.', shares: 25, price: 112.40, change: 0.4, alloc: 20 },
+      ]},
+    { name: 'Tasha R.', handle: '@tasha_r', color: '#EF6C00', initials: 'TR', isPublic: true, portfolio: '+19.6% all time', followers: 673, totalValue: 41600,
+      holdings: [
+        { ticker: 'SPY', name: 'SPDR S&P 500', shares: 15, price: 512.80, change: 0.6, alloc: 28 },
+        { ticker: 'BTC', name: 'Bitcoin', shares: 0.2, price: 67500, change: 3.1, alloc: 32 },
+        { ticker: 'AAPL', name: 'Apple Inc.', shares: 20, price: 192.30, change: 1.2, alloc: 12 },
+        { ticker: 'AMZN', name: 'Amazon.com', shares: 18, price: 186.90, change: 1.5, alloc: 13 },
+        { ticker: 'NVDA', name: 'NVIDIA Corp.', shares: 5, price: 878.40, change: 4.2, alloc: 15 },
+      ]},
 ];
 
 let isAccountPublic = false;
@@ -2148,26 +2277,83 @@ function renderProfile() {
 
 function renderDiscover() {
     const container = document.getElementById('discoverList');
-    container.innerHTML = discoverUsers.map(u => `
-        <div class="public-portfolio">
+    container.innerHTML = discoverUsers.map((u, i) => `
+        <div class="public-portfolio" onclick="viewPortfolio(${i})" style="cursor:pointer; transition: transform 0.2s;" onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform=''" onmouseleave="this.style.transform=''">
             <div class="public-portfolio-header">
                 <div class="public-portfolio-avatar" style="background: ${u.color}">${u.initials}</div>
                 <div style="flex:1">
                     <div class="public-portfolio-name">${u.name}</div>
                     <div class="public-portfolio-handle">${u.handle} · ${u.followers} followers</div>
                 </div>
-                <button class="follow-btn follow" onclick="this.classList.toggle('follow'); this.classList.toggle('following'); this.textContent = this.classList.contains('following') ? 'Following' : 'Follow'; showToast(this.classList.contains('following') ? 'Following ' + '${u.name}' : 'Unfollowed')">Follow</button>
+                <button class="follow-btn follow" onclick="event.stopPropagation(); this.classList.toggle('follow'); this.classList.toggle('following'); this.textContent = this.classList.contains('following') ? 'Following' : 'Follow'; showToast(this.classList.contains('following') ? 'Following ' + '${u.name}' : 'Unfollowed')">Follow</button>
             </div>
             ${u.isPublic ? `
                 <div style="font-size:13px; color: var(--green); font-weight:600; margin-bottom:8px">${u.portfolio}</div>
                 <div class="mini-holdings">
-                    ${u.holdings.map(h => `<span class="mini-holding">${h}</span>`).join('')}
+                    ${u.holdings.map(h => `<span class="mini-holding">${h.ticker}</span>`).join('')}
                 </div>
+                <div style="font-size:12px; color: var(--text-muted); margin-top:8px">Tap to view full portfolio →</div>
             ` : `
                 <div class="private-badge">🔒 Private portfolio</div>
             `}
         </div>
     `).join('');
+}
+
+function viewPortfolio(index) {
+    const u = discoverUsers[index];
+    if (!u.isPublic) {
+        showToast('This portfolio is private');
+        return;
+    }
+
+    const modal = document.getElementById('portfolioViewerModal');
+    const content = document.getElementById('portfolioViewerContent');
+
+    content.innerHTML = `
+        <div class="portfolio-viewer-header">
+            <div class="pv-avatar" style="background: ${u.color}">${u.initials}</div>
+            <div>
+                <div class="pv-name">${u.name}</div>
+                <div class="pv-handle">${u.handle} · ${u.followers} followers</div>
+            </div>
+        </div>
+
+        <div class="pv-meta">
+            <div class="pv-meta-item">
+                <div class="pv-meta-val">$${u.totalValue.toLocaleString()}</div>
+                <div class="pv-meta-label">Portfolio Value</div>
+            </div>
+            <div class="pv-meta-item">
+                <div class="pv-meta-val green">${u.portfolio}</div>
+                <div class="pv-meta-label">All Time Return</div>
+            </div>
+            <div class="pv-meta-item">
+                <div class="pv-meta-val">${u.holdings.length}</div>
+                <div class="pv-meta-label">Holdings</div>
+            </div>
+        </div>
+
+        <div class="pv-section-title">Holdings</div>
+        ${u.holdings.map(h => `
+            <div class="pv-holding">
+                <div class="pv-ticker-icon">${h.ticker.substring(0, 2)}</div>
+                <div class="pv-holding-info">
+                    <div class="pv-holding-name">${h.ticker}</div>
+                    <div class="pv-holding-detail">${h.name} · ${h.shares} shares</div>
+                    <div class="pv-alloc-bar"><div class="pv-alloc-fill" style="width:${h.alloc}%"></div></div>
+                </div>
+                <div class="pv-holding-right">
+                    <div class="pv-holding-alloc">${h.alloc}%</div>
+                    <div class="pv-holding-change ${h.change >= 0 ? 'up' : 'down'}">${h.change >= 0 ? '+' : ''}${h.change.toFixed(1)}% today</div>
+                </div>
+            </div>
+        `).join('')}
+
+        <button class="submit-btn" style="margin-top:16px" onclick="closeModals(); showToast('Following ${u.name}')">Follow ${u.name}</button>
+    `;
+
+    modal.classList.add('show');
 }
 
 function renderFollowers() {
