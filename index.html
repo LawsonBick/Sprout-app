@@ -1740,11 +1740,11 @@
             <div class="profile-handle">@Mark_Loves_Sprout</div>
             <div class="profile-stats-row">
                 <div class="profile-stat" onclick="showFollowTab('followers')">
-                    <div class="profile-stat-num" id="followerCount">24</div>
+                    <div class="profile-stat-num" id="followerCount">8</div>
                     <div class="profile-stat-label">Followers</div>
                 </div>
                 <div class="profile-stat" onclick="showFollowTab('following')">
-                    <div class="profile-stat-num" id="followingCount">13</div>
+                    <div class="profile-stat-num" id="followingCount">8</div>
                     <div class="profile-stat-label">Following</div>
                 </div>
                 <div class="profile-stat">
@@ -2102,46 +2102,25 @@ const communityPosts = [
 ];
 
 const followers = [
-    { name: 'Sarah K.', handle: '@sarah_k', color: '#6A1B9A', initials: 'SK', isPublic: true, portfolio: '+12.4% all time', holdings: ['VOO', 'AAPL', 'MSFT'], isFollowing: true },
-    { name: 'Marcus T.', handle: '@marcus_t', color: '#1565C0', initials: 'MT', isPublic: true, portfolio: '+8.2% all time', holdings: ['VTI', 'QQQ', 'AMZN', 'GOOGL'], isFollowing: false },
-    { name: 'Priya M.', handle: '@priya_m', color: '#D32F2F', initials: 'PM', isPublic: false, portfolio: null, holdings: [], isFollowing: true },
-    { name: 'James W.', handle: '@james_w', color: '#2E7D32', initials: 'JW', isPublic: true, portfolio: '+22.1% all time', holdings: ['SPY', 'BTC', 'ETH', 'NVDA'], isFollowing: false },
-    { name: 'Nina R.', handle: '@nina_r', color: '#E65100', initials: 'NR', isPublic: true, portfolio: '+5.8% all time', holdings: ['VOO', 'BND', 'VNQ'], isFollowing: false },
-    { name: 'Carlos G.', handle: '@carlos_g', color: '#00838F', initials: 'CG', isPublic: true, portfolio: '+18.3% all time', holdings: ['AAPL', 'GOOGL', 'AMZN'], isFollowing: true },
-    { name: 'Aisha B.', handle: '@aisha_b', color: '#AD1457', initials: 'AB', isPublic: true, portfolio: '+7.9% all time', holdings: ['VTI', 'SCHD'], isFollowing: false },
-    { name: 'Tyler H.', handle: '@tyler_h', color: '#4527A0', initials: 'TH', isPublic: false, portfolio: null, holdings: [], isFollowing: false },
-    { name: 'Mei Lin', handle: '@mei_invests', color: '#AD1457', initials: 'ML', isPublic: true, portfolio: '+28.9% all time', holdings: ['QQQ', 'AAPL', 'GOOGL', 'META'], isFollowing: true },
-    { name: 'David P.', handle: '@david_p', color: '#1565C0', initials: 'DP', isPublic: true, portfolio: '+9.1% all time', holdings: ['VOO', 'SCHD', 'VYM'], isFollowing: false },
-    { name: 'Rachel S.', handle: '@rachel_s', color: '#C62828', initials: 'RS', isPublic: true, portfolio: '+14.6% all time', holdings: ['MSFT', 'NVDA', 'CRM'], isFollowing: false },
-    { name: 'Kwame A.', handle: '@kwame_a', color: '#1B5E20', initials: 'KA', isPublic: true, portfolio: '+11.2% all time', holdings: ['VOO', 'AAPL', 'JNJ', 'PG'], isFollowing: true },
-    { name: 'Sofia L.', handle: '@sofia_l', color: '#6A1B9A', initials: 'SL', isPublic: false, portfolio: null, holdings: [], isFollowing: false },
-    { name: 'Ethan W.', handle: '@ethan_w', color: '#E65100', initials: 'EW', isPublic: true, portfolio: '+6.4% all time', holdings: ['BND', 'VNQ', 'SCHD'], isFollowing: false },
-    { name: 'Hannah J.', handle: '@hannah_j', color: '#00695C', initials: 'HJ', isPublic: true, portfolio: '+20.5% all time', holdings: ['TSLA', 'NVDA', 'AMD'], isFollowing: true },
-    { name: 'Omar F.', handle: '@omar_f', color: '#37474F', initials: 'OF', isPublic: true, portfolio: '+3.8% all time', holdings: ['VOO', 'BND'], isFollowing: false },
-    { name: 'Lily T.', handle: '@lily_trades', color: '#D81B60', initials: 'LT', isPublic: true, portfolio: '+25.1% all time', holdings: ['BTC', 'ETH', 'SOL', 'NVDA'], isFollowing: false },
-    { name: 'Ben R.', handle: '@ben_r', color: '#1565C0', initials: 'BR', isPublic: true, portfolio: '+10.7% all time', holdings: ['SPY', 'QQQ', 'AAPL'], isFollowing: true },
-    { name: 'Tasha R.', handle: '@tasha_r', color: '#EF6C00', initials: 'TR', isPublic: true, portfolio: '+19.6% all time', holdings: ['SPY', 'BTC', 'AAPL', 'AMZN', 'NVDA'], isFollowing: false },
-    { name: 'Derek M.', handle: '@derek_m', color: '#283593', initials: 'DM', isPublic: false, portfolio: null, holdings: [], isFollowing: false },
-    { name: 'Zara K.', handle: '@zara_k', color: '#00838F', initials: 'ZK', isPublic: true, portfolio: '+16.3% all time', holdings: ['MSFT', 'GOOGL', 'AMZN', 'META'], isFollowing: true },
-    { name: 'Chris N.', handle: '@chris_n', color: '#2E7D32', initials: 'CN', isPublic: true, portfolio: '+4.2% all time', holdings: ['VTI', 'BND', 'VNQ'], isFollowing: false },
-    { name: 'Jasmine P.', handle: '@jasmine_p', color: '#6A1B9A', initials: 'JP', isPublic: true, portfolio: '+13.8% all time', holdings: ['AAPL', 'DIS', 'NFLX', 'COST'], isFollowing: false },
-    { name: 'Ryan C.', handle: '@ryan_c', color: '#D32F2F', initials: 'RC', isPublic: true, portfolio: '+8.9% all time', holdings: ['VOO', 'AAPL', 'MSFT'], isFollowing: true },
+    { name: 'Lawson Bickerstaff', handle: '@lawson_b', color: '#1565C0', initials: 'LB', isPublic: true, portfolio: '+18.7% all time', holdings: ['VOO', 'AAPL', 'NVDA', 'MSFT'], isFollowing: true },
+    { name: 'Paul Bijili', handle: '@paul_bijili', color: '#6A1B9A', initials: 'PB', isPublic: true, portfolio: '+11.3% all time', holdings: ['VTI', 'QQQ', 'AMZN'], isFollowing: true },
+    { name: 'Eric Cui', handle: '@eric_cui', color: '#00695C', initials: 'EC', isPublic: true, portfolio: '+24.6% all time', holdings: ['NVDA', 'AMD', 'TSLA', 'GOOGL'], isFollowing: true },
+    { name: 'Ryan Levin', handle: '@ryan_levin', color: '#D32F2F', initials: 'RL', isPublic: true, portfolio: '+9.8% all time', holdings: ['SPY', 'BND', 'SCHD'], isFollowing: true },
+    { name: 'Olivia Lukes', handle: '@olivia_lukes', color: '#AD1457', initials: 'OL', isPublic: true, portfolio: '+15.2% all time', holdings: ['AAPL', 'MSFT', 'DIS', 'NFLX'], isFollowing: true },
+    { name: 'Anaya Malik', handle: '@anaya_malik', color: '#E65100', initials: 'AM', isPublic: true, portfolio: '+21.4% all time', holdings: ['QQQ', 'META', 'GOOGL'], isFollowing: true },
+    { name: 'Jett Winkler', handle: '@jett_winkler', color: '#2E7D32', initials: 'JW', isPublic: true, portfolio: '+7.5% all time', holdings: ['VOO', 'AAPL', 'JNJ'], isFollowing: true },
+    { name: 'Aralyn Vasquez', handle: '@aralyn_v', color: '#4527A0', initials: 'AV', isPublic: true, portfolio: '+19.1% all time', holdings: ['BTC', 'ETH', 'NVDA', 'AAPL', 'VOO'], isFollowing: true },
 ];
 
 const following = [
-    { name: 'Sarah K.', handle: '@sarah_k', color: '#6A1B9A', initials: 'SK', isPublic: true, portfolio: '+12.4% all time', holdings: ['VOO', 'AAPL', 'MSFT'] },
-    { name: 'Priya M.', handle: '@priya_m', color: '#D32F2F', initials: 'PM', isPublic: false, portfolio: null, holdings: [] },
-    { name: 'Alex Chen', handle: '@alex_chen', color: '#00695C', initials: 'AC', isPublic: true, portfolio: '+31.7% all time', holdings: ['NVDA', 'TSLA', 'AMD', 'MSFT', 'AAPL'] },
-    { name: 'Jordan B.', handle: '@jordan_b', color: '#4527A0', initials: 'JB', isPublic: true, portfolio: '+15.3% all time', holdings: ['VTI', 'VXUS', 'BND', 'VNQ'] },
-    { name: 'Carlos G.', handle: '@carlos_g', color: '#00838F', initials: 'CG', isPublic: true, portfolio: '+18.3% all time', holdings: ['AAPL', 'GOOGL', 'AMZN'] },
-    { name: 'Mei Lin', handle: '@mei_invests', color: '#AD1457', initials: 'ML', isPublic: true, portfolio: '+28.9% all time', holdings: ['QQQ', 'AAPL', 'GOOGL', 'META'] },
-    { name: 'Kwame A.', handle: '@kwame_a', color: '#1B5E20', initials: 'KA', isPublic: true, portfolio: '+11.2% all time', holdings: ['VOO', 'AAPL', 'JNJ', 'PG'] },
-    { name: 'Hannah J.', handle: '@hannah_j', color: '#00695C', initials: 'HJ', isPublic: true, portfolio: '+20.5% all time', holdings: ['TSLA', 'NVDA', 'AMD'] },
-    { name: 'Ben R.', handle: '@ben_r', color: '#1565C0', initials: 'BR', isPublic: true, portfolio: '+10.7% all time', holdings: ['SPY', 'QQQ', 'AAPL'] },
-    { name: 'Zara K.', handle: '@zara_k', color: '#00838F', initials: 'ZK', isPublic: true, portfolio: '+16.3% all time', holdings: ['MSFT', 'GOOGL', 'AMZN', 'META'] },
-    { name: 'Ryan C.', handle: '@ryan_c', color: '#D32F2F', initials: 'RC', isPublic: true, portfolio: '+8.9% all time', holdings: ['VOO', 'AAPL', 'MSFT'] },
-    { name: 'Tasha R.', handle: '@tasha_r', color: '#EF6C00', initials: 'TR', isPublic: true, portfolio: '+19.6% all time', holdings: ['SPY', 'BTC', 'AAPL', 'AMZN', 'NVDA'] },
-    { name: 'David P.', handle: '@david_p', color: '#1565C0', initials: 'DP', isPublic: true, portfolio: '+9.1% all time', holdings: ['VOO', 'SCHD', 'VYM'] },
+    { name: 'Lawson Bickerstaff', handle: '@lawson_b', color: '#1565C0', initials: 'LB', isPublic: true, portfolio: '+18.7% all time', holdings: ['VOO', 'AAPL', 'NVDA', 'MSFT'] },
+    { name: 'Paul Bijili', handle: '@paul_bijili', color: '#6A1B9A', initials: 'PB', isPublic: true, portfolio: '+11.3% all time', holdings: ['VTI', 'QQQ', 'AMZN'] },
+    { name: 'Eric Cui', handle: '@eric_cui', color: '#00695C', initials: 'EC', isPublic: true, portfolio: '+24.6% all time', holdings: ['NVDA', 'AMD', 'TSLA', 'GOOGL'] },
+    { name: 'Ryan Levin', handle: '@ryan_levin', color: '#D32F2F', initials: 'RL', isPublic: true, portfolio: '+9.8% all time', holdings: ['SPY', 'BND', 'SCHD'] },
+    { name: 'Olivia Lukes', handle: '@olivia_lukes', color: '#AD1457', initials: 'OL', isPublic: true, portfolio: '+15.2% all time', holdings: ['AAPL', 'MSFT', 'DIS', 'NFLX'] },
+    { name: 'Anaya Malik', handle: '@anaya_malik', color: '#E65100', initials: 'AM', isPublic: true, portfolio: '+21.4% all time', holdings: ['QQQ', 'META', 'GOOGL'] },
+    { name: 'Jett Winkler', handle: '@jett_winkler', color: '#2E7D32', initials: 'JW', isPublic: true, portfolio: '+7.5% all time', holdings: ['VOO', 'AAPL', 'JNJ'] },
+    { name: 'Aralyn Vasquez', handle: '@aralyn_v', color: '#4527A0', initials: 'AV', isPublic: true, portfolio: '+19.1% all time', holdings: ['BTC', 'ETH', 'NVDA', 'AAPL', 'VOO'] },
 ];
 
 const discoverUsers = [
