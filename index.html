@@ -1585,7 +1585,7 @@
             <button class="header-btn" onclick="switchPage('profile')">👤</button>
         </div>
     </div>
-    <div class="greeting" id="greeting">Good morning, Investor</div>
+    <div class="greeting" id="greeting">Good morning, Mark</div>
     <div class="portfolio-value" id="portfolioValue">$3,340.40</div>
     <div class="portfolio-change up" id="portfolioChange">↑ +$42.18 (+1.28%) today</div>
 </div>
@@ -1735,9 +1735,9 @@
     <div class="page" id="page-profile">
         <!-- Profile Card -->
         <div class="profile-header-card">
-            <div class="profile-avatar">L</div>
-            <div class="profile-name">Lawson</div>
-            <div class="profile-handle">@lawson_invests</div>
+            <div class="profile-avatar">M</div>
+            <div class="profile-name">Mark Bunting</div>
+            <div class="profile-handle">@Mark_Loves_Sprout</div>
             <div class="profile-stats-row">
                 <div class="profile-stat" onclick="showFollowTab('followers')">
                     <div class="profile-stat-num" id="followerCount">24</div>
@@ -2300,7 +2300,7 @@ function updateGreeting() {
     let greeting = 'Good evening';
     if (hour < 12) greeting = 'Good morning';
     else if (hour < 17) greeting = 'Good afternoon';
-    document.getElementById('greeting').textContent = greeting + ', Investor';
+    document.getElementById('greeting').textContent = greeting + ', Mark';
 }
 
 // ===== PORTFOLIO VALUE =====
