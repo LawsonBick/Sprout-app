@@ -946,6 +946,258 @@
             color: var(--text-secondary);
         }
 
+        /* ===== PROFILE ===== */
+        .profile-header-card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 24px 20px;
+            margin-bottom: 14px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+        .profile-avatar {
+            width: 72px; height: 72px;
+            border-radius: 50%;
+            background: var(--green-gradient);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 32px;
+            color: white;
+            margin: 0 auto 12px;
+            font-weight: 700;
+            font-family: 'DM Serif Display', serif;
+        }
+        .profile-name {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+        .profile-handle {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 14px;
+        }
+        .profile-stats-row {
+            display: flex;
+            justify-content: center;
+            gap: 28px;
+            margin-bottom: 16px;
+        }
+        .profile-stat {
+            text-align: center;
+            cursor: pointer;
+        }
+        .profile-stat-num {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--green-dark);
+        }
+        .profile-stat-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+        }
+        .privacy-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-card-alt);
+            padding: 14px 16px;
+            border-radius: var(--radius-sm);
+            margin-top: 4px;
+        }
+        .privacy-toggle-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .privacy-toggle-left span:first-child {
+            font-size: 20px;
+        }
+        .privacy-label {
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .privacy-desc {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+        .toggle-switch {
+            width: 48px; height: 28px;
+            background: #ccc;
+            border-radius: 14px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.3s;
+            border: none;
+            padding: 0;
+        }
+        .toggle-switch.on {
+            background: var(--green);
+        }
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 3px; left: 3px;
+            width: 22px; height: 22px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        .toggle-switch.on::after {
+            transform: translateX(20px);
+        }
+        .follow-tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 14px;
+            background: var(--bg-card-alt);
+            border-radius: var(--radius-sm);
+            padding: 3px;
+        }
+        .follow-tab {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .follow-tab.active {
+            background: var(--bg-card);
+            color: var(--green-dark);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        }
+        .follow-user {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .follow-user:last-child { border-bottom: none; }
+        .follow-avatar {
+            width: 44px; height: 44px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+            font-weight: 700;
+            color: white;
+        }
+        .follow-user-info { flex: 1; min-width: 0; }
+        .follow-user-name {
+            font-weight: 600;
+            font-size: 15px;
+        }
+        .follow-user-handle {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        .follow-user-portfolio {
+            font-size: 11px;
+            color: var(--green);
+            font-weight: 500;
+            margin-top: 2px;
+        }
+        .follow-btn {
+            padding: 7px 16px;
+            border-radius: 20px;
+            border: none;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .follow-btn.following {
+            background: var(--bg-card-alt);
+            color: var(--text-secondary);
+            border: 1.5px solid var(--border);
+        }
+        .follow-btn.follow {
+            background: var(--green-dark);
+            color: white;
+        }
+        .follow-btn.following:hover {
+            background: var(--red-pale);
+            color: var(--red);
+            border-color: var(--red);
+        }
+        .public-portfolio {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+        .public-portfolio-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .public-portfolio-avatar {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px;
+            font-weight: 700;
+            color: white;
+        }
+        .public-portfolio-name { font-weight: 600; font-size: 14px; }
+        .public-portfolio-handle { font-size: 12px; color: var(--text-muted); }
+        .public-portfolio-stats {
+            display: flex;
+            gap: 16px;
+            margin-left: auto;
+        }
+        .public-portfolio-stat {
+            text-align: right;
+        }
+        .public-portfolio-stat-val {
+            font-weight: 700;
+            font-size: 14px;
+        }
+        .public-portfolio-stat-label {
+            font-size: 10px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+        .mini-holdings {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .mini-holding {
+            background: var(--bg-card-alt);
+            padding: 5px 10px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        .private-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            color: var(--text-muted);
+            background: var(--bg-card-alt);
+            padding: 3px 10px;
+            border-radius: 12px;
+        }
+
         /* ===== ANIMATIONS ===== */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(8px); }
@@ -976,7 +1228,7 @@
             <button class="header-btn" onclick="showToast('3 new notifications')">
                 🔔<span class="notification-dot"></span>
             </button>
-            <button class="header-btn" onclick="showToast('Settings coming soon!')">👤</button>
+            <button class="header-btn" onclick="switchPage('profile')">👤</button>
         </div>
     </div>
     <div class="greeting" id="greeting">Good morning, Investor</div>
@@ -1123,6 +1375,78 @@
             <div class="ai-text">Share insights, ask questions, and grow with fellow investors. Be respectful and never share financial advice as professional counsel.</div>
         </div>
         <div id="communityPosts"></div>
+    </div>
+
+    <!-- ==================== PROFILE ==================== -->
+    <div class="page" id="page-profile">
+        <!-- Profile Card -->
+        <div class="profile-header-card">
+            <div class="profile-avatar">L</div>
+            <div class="profile-name">Lawson</div>
+            <div class="profile-handle">@lawson_invests</div>
+            <div class="profile-stats-row">
+                <div class="profile-stat" onclick="showFollowTab('followers')">
+                    <div class="profile-stat-num" id="followerCount">128</div>
+                    <div class="profile-stat-label">Followers</div>
+                </div>
+                <div class="profile-stat" onclick="showFollowTab('following')">
+                    <div class="profile-stat-num" id="followingCount">47</div>
+                    <div class="profile-stat-label">Following</div>
+                </div>
+                <div class="profile-stat">
+                    <div class="profile-stat-num">5</div>
+                    <div class="profile-stat-label">Holdings</div>
+                </div>
+            </div>
+            <div class="privacy-toggle">
+                <div class="privacy-toggle-left">
+                    <span>🔒</span>
+                    <div>
+                        <div class="privacy-label" id="privacyLabel">Private Account</div>
+                        <div class="privacy-desc" id="privacyDesc">Only followers can see your portfolio</div>
+                    </div>
+                </div>
+                <button class="toggle-switch" id="privacyToggle" onclick="togglePrivacy()"></button>
+            </div>
+        </div>
+
+        <!-- Follow Tabs -->
+        <div class="follow-tabs">
+            <button class="follow-tab active" data-ftab="discover" onclick="showFollowTab('discover')">Discover</button>
+            <button class="follow-tab" data-ftab="followers" onclick="showFollowTab('followers')">Followers</button>
+            <button class="follow-tab" data-ftab="following" onclick="showFollowTab('following')">Following</button>
+        </div>
+
+        <!-- Discover -->
+        <div id="ftab-discover" class="follow-section">
+            <div id="discoverList"></div>
+        </div>
+
+        <!-- Followers -->
+        <div id="ftab-followers" class="follow-section" style="display:none;">
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title">Your Followers</div>
+                        <div class="card-subtitle">People following your portfolio</div>
+                    </div>
+                </div>
+                <div id="followersList"></div>
+            </div>
+        </div>
+
+        <!-- Following -->
+        <div id="ftab-following" class="follow-section" style="display:none;">
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title">Following</div>
+                        <div class="card-subtitle">Investors you follow</div>
+                    </div>
+                </div>
+                <div id="followingList"></div>
+            </div>
+        </div>
     </div>
 
 </div>
@@ -1378,6 +1702,31 @@ const communityPosts = [
     { author: 'James W.', avatar: '👨‍🔬', tag: 'Tip', time: '8h ago', body: 'Pro tip: set up auto-invest on your brokerage account. I invest $300 on the 1st and 15th of every month without thinking about it. Automation removes the temptation to time the market.' },
 ];
 
+const followers = [
+    { name: 'Sarah K.', handle: '@sarah_k', color: '#6A1B9A', initials: 'SK', isPublic: true, portfolio: '+12.4% all time', holdings: ['VOO', 'AAPL', 'MSFT'], isFollowing: true },
+    { name: 'Marcus T.', handle: '@marcus_t', color: '#1565C0', initials: 'MT', isPublic: true, portfolio: '+8.2% all time', holdings: ['VTI', 'QQQ', 'AMZN', 'GOOGL'], isFollowing: false },
+    { name: 'Priya M.', handle: '@priya_m', color: '#D32F2F', initials: 'PM', isPublic: false, portfolio: null, holdings: [], isFollowing: true },
+    { name: 'James W.', handle: '@james_w', color: '#2E7D32', initials: 'JW', isPublic: true, portfolio: '+22.1% all time', holdings: ['SPY', 'BTC', 'ETH', 'NVDA'], isFollowing: false },
+    { name: 'Nina R.', handle: '@nina_r', color: '#E65100', initials: 'NR', isPublic: true, portfolio: '+5.8% all time', holdings: ['VOO', 'BND', 'VNQ'], isFollowing: false },
+];
+
+const following = [
+    { name: 'Sarah K.', handle: '@sarah_k', color: '#6A1B9A', initials: 'SK', isPublic: true, portfolio: '+12.4% all time', holdings: ['VOO', 'AAPL', 'MSFT'] },
+    { name: 'Priya M.', handle: '@priya_m', color: '#D32F2F', initials: 'PM', isPublic: false, portfolio: null, holdings: [] },
+    { name: 'Alex Chen', handle: '@alex_chen', color: '#00695C', initials: 'AC', isPublic: true, portfolio: '+31.7% all time', holdings: ['NVDA', 'TSLA', 'AMD', 'MSFT', 'AAPL'] },
+    { name: 'Jordan B.', handle: '@jordan_b', color: '#4527A0', initials: 'JB', isPublic: true, portfolio: '+15.3% all time', holdings: ['VTI', 'VXUS', 'BND', 'VNQ'] },
+];
+
+const discoverUsers = [
+    { name: 'Alex Chen', handle: '@alex_chen', color: '#00695C', initials: 'AC', isPublic: true, portfolio: '+31.7% all time', holdings: ['NVDA', 'TSLA', 'AMD', 'MSFT', 'AAPL'], followers: 842 },
+    { name: 'Jordan B.', handle: '@jordan_b', color: '#4527A0', initials: 'JB', isPublic: true, portfolio: '+15.3% all time', holdings: ['VTI', 'VXUS', 'BND', 'VNQ'], followers: 356 },
+    { name: 'Mei Lin', handle: '@mei_invests', color: '#AD1457', initials: 'ML', isPublic: true, portfolio: '+28.9% all time', holdings: ['QQQ', 'AAPL', 'GOOGL', 'META'], followers: 1205 },
+    { name: 'David P.', handle: '@david_p', color: '#1565C0', initials: 'DP', isPublic: true, portfolio: '+9.1% all time', holdings: ['VOO', 'SCHD', 'VYM'], followers: 198 },
+    { name: 'Tasha R.', handle: '@tasha_r', color: '#EF6C00', initials: 'TR', isPublic: true, portfolio: '+19.6% all time', holdings: ['SPY', 'BTC', 'AAPL', 'AMZN', 'NVDA'], followers: 673 },
+];
+
+let isAccountPublic = false;
+
 const aiInsights = [
     'Your portfolio is up 1.28% today. Consider diversifying — 45% of your holdings are in tech. Adding bonds or REITs could reduce volatility.',
     'Your VOO position is your most stable holding with consistent returns. Consider increasing your index fund allocation for steadier growth.',
@@ -1400,6 +1749,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderMovers();
     renderLessons();
     renderCommunity();
+    renderProfile();
     drawChart('1M');
     setupNavigation();
     setupTimeframes();
@@ -1787,6 +2137,92 @@ function renderCommunity() {
             </div>
         </div>
     `).join('');
+}
+
+// ===== PROFILE =====
+function renderProfile() {
+    renderDiscover();
+    renderFollowers();
+    renderFollowing();
+}
+
+function renderDiscover() {
+    const container = document.getElementById('discoverList');
+    container.innerHTML = discoverUsers.map(u => `
+        <div class="public-portfolio">
+            <div class="public-portfolio-header">
+                <div class="public-portfolio-avatar" style="background: ${u.color}">${u.initials}</div>
+                <div style="flex:1">
+                    <div class="public-portfolio-name">${u.name}</div>
+                    <div class="public-portfolio-handle">${u.handle} · ${u.followers} followers</div>
+                </div>
+                <button class="follow-btn follow" onclick="this.classList.toggle('follow'); this.classList.toggle('following'); this.textContent = this.classList.contains('following') ? 'Following' : 'Follow'; showToast(this.classList.contains('following') ? 'Following ' + '${u.name}' : 'Unfollowed')">Follow</button>
+            </div>
+            ${u.isPublic ? `
+                <div style="font-size:13px; color: var(--green); font-weight:600; margin-bottom:8px">${u.portfolio}</div>
+                <div class="mini-holdings">
+                    ${u.holdings.map(h => `<span class="mini-holding">${h}</span>`).join('')}
+                </div>
+            ` : `
+                <div class="private-badge">🔒 Private portfolio</div>
+            `}
+        </div>
+    `).join('');
+}
+
+function renderFollowers() {
+    const container = document.getElementById('followersList');
+    container.innerHTML = followers.map(u => `
+        <div class="follow-user">
+            <div class="follow-avatar" style="background: ${u.color}">${u.initials}</div>
+            <div class="follow-user-info">
+                <div class="follow-user-name">${u.name}</div>
+                <div class="follow-user-handle">${u.handle}</div>
+                ${u.isPublic ? `<div class="follow-user-portfolio">${u.portfolio}</div>` : `<div class="private-badge">🔒 Private</div>`}
+            </div>
+            <button class="follow-btn ${u.isFollowing ? 'following' : 'follow'}" onclick="this.classList.toggle('follow'); this.classList.toggle('following'); this.textContent = this.classList.contains('following') ? 'Following' : 'Follow Back'">${u.isFollowing ? 'Following' : 'Follow Back'}</button>
+        </div>
+    `).join('');
+}
+
+function renderFollowing() {
+    const container = document.getElementById('followingList');
+    container.innerHTML = following.map(u => `
+        <div class="follow-user">
+            <div class="follow-avatar" style="background: ${u.color}">${u.initials}</div>
+            <div class="follow-user-info">
+                <div class="follow-user-name">${u.name}</div>
+                <div class="follow-user-handle">${u.handle}</div>
+                ${u.isPublic ? `<div class="follow-user-portfolio">${u.portfolio}</div>` : `<div class="private-badge">🔒 Private</div>`}
+            </div>
+            <button class="follow-btn following" onclick="this.classList.toggle('follow'); this.classList.toggle('following'); this.textContent = this.classList.contains('following') ? 'Following' : 'Follow'">Following</button>
+        </div>
+    `).join('');
+}
+
+function showFollowTab(tab) {
+    document.querySelectorAll('.follow-section').forEach(s => s.style.display = 'none');
+    document.querySelectorAll('.follow-tab').forEach(t => t.classList.toggle('active', t.dataset.ftab === tab));
+    document.getElementById('ftab-' + tab).style.display = 'block';
+}
+
+function togglePrivacy() {
+    isAccountPublic = !isAccountPublic;
+    const toggle = document.getElementById('privacyToggle');
+    const label = document.getElementById('privacyLabel');
+    const desc = document.getElementById('privacyDesc');
+    toggle.classList.toggle('on', isAccountPublic);
+    if (isAccountPublic) {
+        label.textContent = 'Public Account';
+        desc.textContent = 'Anyone can see your portfolio';
+        toggle.previousElementSibling.querySelector('span').textContent = '🌐';
+        showToast('Your portfolio is now public');
+    } else {
+        label.textContent = 'Private Account';
+        desc.textContent = 'Only followers can see your portfolio';
+        toggle.previousElementSibling.querySelector('span').textContent = '🔒';
+        showToast('Your portfolio is now private');
+    }
 }
 
 // ===== AI ADVISOR =====
