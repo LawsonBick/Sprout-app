@@ -1588,6 +1588,7 @@
     <div class="greeting" id="greeting">Good morning, Mark</div>
     <div class="portfolio-value" id="portfolioValue">$3,340.40</div>
     <div class="portfolio-change up" id="portfolioChange">↑ +$42.18 (+1.28%) today</div>
+    <div id="lastUpdated" style="font-size: 11px; color: #999; margin-top: 4px; text-align: center;"></div>
 </div>
 
 <!-- CONTENT -->
@@ -2302,6 +2303,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupTimeframes();
     setupModals();
     updatePortfolioValue();
+    startPriceUpdates();
 
     // Register service worker
     if ('serviceWorker' in navigator) {
@@ -2336,6 +2338,90 @@ function updatePortfolioValue() {
     const changeEl = document.getElementById('portfolioChange');
     changeEl.className = 'portfolio-change ' + (dailyChange >= 0 ? 'up' : 'down');
     changeEl.textContent = (dailyChange >= 0 ? '↑' : '↓') + ' ' + (dailyChange >= 0 ? '+' : '') + '$' + Math.abs(dailyChange).toFixed(2) + ' (' + (dailyChange >= 0 ? '+' : '') + dailyPct.toFixed(2) + '%) today';
+}
+
+// ===== REAL-TIME PRICES =====
+const YAHOO_PROXY = 'https://corsproxy.io/?';
+const COINGECKO_URL = 'https://api.coingecko.com/api/v3/simple/price';
+
+const cryptoIds = { 'BTC': 'bitcoin', 'ETH': 'ethereum', 'SOL': 'solana', 'DOGE': 'dogecoin' };
+
+async function fetchStockPrice(ticker) {
+    const url = `${YAHOO_PROXY}${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?interval=1d&range=1d`)}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    const meta = data.chart.result[0].meta;
+    const price = meta.regularMarketPrice;
+    const prevClose = meta.chartPreviousClose || meta.previousClose;
+    const change = ((price - prevClose) / prevClose) * 100;
+    return { price, change };
+}
+
+async function fetchCryptoPrices() {
+    const ids = Object.values(cryptoIds).join(',');
+    const res = await fetch(`${COINGECKO_URL}?ids=${ids}&vs_currencies=usd&include_24hr_change=true`);
+    const data = await res.json();
+    const result = {};
+    for (const [ticker, id] of Object.entries(cryptoIds)) {
+        if (data[id]) {
+            result[ticker] = { price: data[id].usd, change: data[id].usd_24h_change || 0 };
+        }
+    }
+    return result;
+}
+
+async function fetchRealTimePrices() {
+    const updatedEl = document.getElementById('lastUpdated');
+    updatedEl.textContent = 'Updating prices...';
+
+    let cryptoPrices = {};
+    try {
+        cryptoPrices = await fetchCryptoPrices();
+    } catch (e) {
+        console.log('Crypto fetch failed:', e);
+    }
+
+    const allItems = [...holdings, ...movers];
+    const seen = new Set();
+
+    for (const item of allItems) {
+        const key = item.ticker;
+        if (seen.has(key)) continue;
+        seen.add(key);
+
+        try {
+            if (cryptoIds[key]) {
+                if (cryptoPrices[key]) {
+                    const cp = cryptoPrices[key];
+                    allItems.filter(h => h.ticker === key).forEach(h => {
+                        h.price = cp.price;
+                        h.change = parseFloat(cp.change.toFixed(2));
+                    });
+                }
+            } else {
+                const result = await fetchStockPrice(key);
+                allItems.filter(h => h.ticker === key).forEach(h => {
+                    h.price = result.price;
+                    h.change = parseFloat(result.change.toFixed(2));
+                });
+            }
+        } catch (e) {
+            console.log(`Failed to fetch ${key}:`, e);
+        }
+    }
+
+    updatePortfolioValue();
+    renderHoldings();
+    renderMovers();
+
+    const now = new Date();
+    updatedEl.textContent = 'Live prices \u00B7 Updated ' + now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+}
+
+let priceInterval = null;
+function startPriceUpdates() {
+    fetchRealTimePrices();
+    priceInterval = setInterval(fetchRealTimePrices, 30000);
 }
 
 // ===== NAVIGATION =====
