@@ -2724,17 +2724,20 @@ function renderTimestamps() {
     el.innerHTML = labels.map(l => `<span>${l}</span>`).join('');
 }
 
+let scrubController = null;
+
 function setupScrubbing() {
     const wrap = document.getElementById('scCanvasWrap');
     if (!wrap) return;
 
-    // Remove old listeners by cloning
-    const newWrap = wrap.cloneNode(true);
-    wrap.parentNode.replaceChild(newWrap, wrap);
+    // Remove old listeners via AbortController
+    if (scrubController) scrubController.abort();
+    scrubController = new AbortController();
+    const signal = scrubController.signal;
 
-    const crosshair = newWrap.querySelector('#scCrosshair');
-    const tooltip = newWrap.querySelector('#scTooltip');
-    const dot = newWrap.querySelector('#scDot');
+    const crosshair = wrap.querySelector('#scCrosshair');
+    const tooltip = wrap.querySelector('#scTooltip');
+    const dot = wrap.querySelector('#scDot');
     const scrubDate = document.getElementById('scScrubDate');
     const priceEl = document.querySelector('.sc-price');
     const changeEl = document.querySelector('.sc-change');
@@ -2795,16 +2798,16 @@ function setupScrubbing() {
     }
 
     // Touch events
-    newWrap.addEventListener('touchstart', (e) => { e.preventDefault(); showScrub(e.touches[0].clientX); }, { passive: false });
-    newWrap.addEventListener('touchmove', (e) => { e.preventDefault(); showScrub(e.touches[0].clientX); }, { passive: false });
-    newWrap.addEventListener('touchend', () => hideScrub());
-    newWrap.addEventListener('touchcancel', () => hideScrub());
+    wrap.addEventListener('touchstart', (e) => { e.preventDefault(); showScrub(e.touches[0].clientX); }, { passive: false, signal });
+    wrap.addEventListener('touchmove', (e) => { e.preventDefault(); showScrub(e.touches[0].clientX); }, { passive: false, signal });
+    wrap.addEventListener('touchend', () => hideScrub(), { signal });
+    wrap.addEventListener('touchcancel', () => hideScrub(), { signal });
 
     // Mouse events
-    newWrap.addEventListener('mousedown', (e) => { e.preventDefault(); showScrub(e.clientX); });
-    newWrap.addEventListener('mousemove', (e) => { if (chartIsScrubbing) showScrub(e.clientX); });
-    newWrap.addEventListener('mouseup', () => hideScrub());
-    newWrap.addEventListener('mouseleave', () => { if (chartIsScrubbing) hideScrub(); });
+    wrap.addEventListener('mousedown', (e) => { e.preventDefault(); showScrub(e.clientX); }, { signal });
+    wrap.addEventListener('mousemove', (e) => { if (chartIsScrubbing) showScrub(e.clientX); }, { signal });
+    wrap.addEventListener('mouseup', () => hideScrub(), { signal });
+    wrap.addEventListener('mouseleave', () => { if (chartIsScrubbing) hideScrub(); }, { signal });
 }
 
 // ===== NAVIGATION =====
