@@ -1430,6 +1430,129 @@
             cursor: pointer;
         }
 
+        /* ===== SEARCH ===== */
+        .search-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 200;
+            display: none;
+            backdrop-filter: blur(4px);
+        }
+        .search-overlay.show { display: block; }
+        .search-panel {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            background: var(--bg);
+            z-index: 201;
+            transform: translateY(-100%);
+            transition: transform 0.3s ease;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            border-radius: 0 0 24px 24px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+        }
+        .search-panel.show { transform: translateY(0); }
+        .search-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-card);
+            border-radius: 0 0 0 0;
+        }
+        .search-bar:first-child { padding-top: max(16px, env(safe-area-inset-top)); }
+        .search-input-wrap {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            background: var(--bg);
+            border-radius: 12px;
+            padding: 10px 14px;
+            gap: 8px;
+            border: 1.5px solid var(--border);
+            transition: border-color 0.2s;
+        }
+        .search-input-wrap:focus-within { border-color: var(--green); }
+        .search-input-icon { font-size: 16px; color: var(--text-muted); }
+        .search-input {
+            flex: 1;
+            border: none;
+            background: none;
+            font-family: inherit;
+            font-size: 15px;
+            outline: none;
+            color: var(--text);
+        }
+        .search-input::placeholder { color: var(--text-muted); }
+        .search-cancel {
+            border: none;
+            background: none;
+            font-family: inherit;
+            font-size: 14px;
+            color: var(--green);
+            font-weight: 600;
+            cursor: pointer;
+            padding: 8px;
+        }
+        .search-results {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px 0;
+        }
+        .search-result {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 20px;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .search-result:hover { background: var(--bg-card-alt); }
+        .search-avatar {
+            width: 48px; height: 48px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px;
+            font-weight: 700;
+            color: white;
+            flex-shrink: 0;
+        }
+        .search-result-info { flex: 1; }
+        .search-result-name { font-weight: 600; font-size: 15px; }
+        .search-result-handle { font-size: 13px; color: var(--text-muted); }
+        .search-result-meta {
+            font-size: 12px;
+            color: var(--green);
+            font-weight: 500;
+            margin-top: 2px;
+        }
+        .search-result-badge {
+            font-size: 10px;
+            background: var(--blue-pale);
+            color: var(--blue);
+            padding: 2px 8px;
+            border-radius: 8px;
+            font-weight: 600;
+            margin-left: 6px;
+        }
+        .search-section-label {
+            padding: 10px 20px 6px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .search-empty {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+        }
+        .search-empty-icon { font-size: 36px; margin-bottom: 10px; }
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(8px); }
             to { opacity: 1; transform: translateY(0); }
@@ -1455,7 +1578,7 @@
             <span class="logo-text">Sprout<span class="logo-badge">BETA</span></span>
         </div>
         <div class="header-actions">
-            <button class="header-btn" onclick="showToast('Search coming soon!')">🔍</button>
+            <button class="header-btn" onclick="openSearch()">🔍</button>
             <button class="header-btn" onclick="openNotifications()">
                 🔔<span class="notification-dot" id="notifDot"></span>
             </button>
@@ -1807,6 +1930,22 @@
     <div class="notif-list" id="notifList"></div>
 </div>
 
+<!-- SEARCH PANEL -->
+<div class="search-overlay" id="searchOverlay" onclick="closeSearch()"></div>
+<div class="search-panel" id="searchPanel">
+    <div class="search-bar">
+        <div class="search-input-wrap">
+            <span class="search-input-icon">🔍</span>
+            <input class="search-input" id="searchInput" type="text" placeholder="Search people, tickers..." oninput="handleSearch(this.value)" autocomplete="off">
+        </div>
+        <button class="search-cancel" onclick="closeSearch()">Cancel</button>
+    </div>
+    <div class="search-results" id="searchResults">
+        <div class="search-section-label">Suggested</div>
+        <div id="searchSuggested"></div>
+    </div>
+</div>
+
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
@@ -2062,6 +2201,63 @@ const notifications = [
     { type: 'investments', icon: '🔔', iconColor: 'orange', text: 'Your <strong>Emergency Fund</strong> goal is 65% complete. Consider adding $100 this week.', time: '3d ago', unread: false },
     { type: 'social', icon: '🏆', iconColor: 'green', text: '<strong>Priya M.</strong> hit a milestone: 6-month emergency fund complete!', time: '3d ago', unread: false },
 ];
+
+const searchableAccounts = [
+    { name: 'Mark Bunting', handle: '@mark_bunting', color: '#1565C0', initials: 'MB', verified: false, isPublic: true, followers: 89, portfolio: '+14.2% all time', totalValue: 28500,
+      holdings: [
+        { ticker: 'AAPL', name: 'Apple Inc.', shares: 20, price: 192.30, change: 1.85, alloc: 28 },
+        { ticker: 'MSFT', name: 'Microsoft Corp.', shares: 10, price: 415.60, change: -0.34, alloc: 24 },
+        { ticker: 'VOO', name: 'Vanguard S&P 500', shares: 8, price: 438.20, change: 0.72, alloc: 20 },
+        { ticker: 'GOOGL', name: 'Alphabet Inc.', shares: 15, price: 165.40, change: 0.8, alloc: 14 },
+        { ticker: 'BND', name: 'Vanguard Bond', shares: 30, price: 72.10, change: 0.1, alloc: 14 },
+      ]},
+    { name: 'Elon Musk', handle: '@elonmusk', color: '#37474F', initials: 'EM', verified: true, isPublic: true, followers: 195000000, portfolio: '+482% all time', totalValue: 248000000000,
+      holdings: [
+        { ticker: 'TSLA', name: 'Tesla Inc.', shares: 411062076, price: 182.50, change: -1.8, alloc: 72 },
+        { ticker: 'XCOM', name: 'X Corp (Private)', shares: 1, price: 19000000000, change: 0, alloc: 12 },
+        { ticker: 'SPACEX', name: 'SpaceX (Private)', shares: 1, price: 30000000000, change: 0, alloc: 14 },
+        { ticker: 'BTC', name: 'Bitcoin', shares: 0, price: 67500, change: 3.1, alloc: 2 },
+      ]},
+    { name: 'Mark Zuckerberg', handle: '@zuck', color: '#1877F2', initials: 'MZ', verified: true, isPublic: true, followers: 120000000, portfolio: '+340% all time', totalValue: 177000000000,
+      holdings: [
+        { ticker: 'META', name: 'Meta Platforms', shares: 350000000, price: 512.30, change: 2.4, alloc: 92 },
+        { ticker: 'BOND', name: 'Treasury Bonds', shares: 1, price: 10000000000, change: 0.05, alloc: 5 },
+        { ticker: 'RE', name: 'Real Estate Holdings', shares: 1, price: 5000000000, change: 0, alloc: 3 },
+      ]},
+    { name: 'Tim Cook', handle: '@tim_cook', color: '#333333', initials: 'TC', verified: true, isPublic: true, followers: 14000000, portfolio: '+215% all time', totalValue: 1800000000,
+      holdings: [
+        { ticker: 'AAPL', name: 'Apple Inc.', shares: 3280000, price: 192.30, change: 1.85, alloc: 78 },
+        { ticker: 'VOO', name: 'Vanguard S&P 500', shares: 20000, price: 438.20, change: 0.72, alloc: 8 },
+        { ticker: 'BRK.B', name: 'Berkshire Hathaway', shares: 15000, price: 412.50, change: 0.3, alloc: 6 },
+        { ticker: 'GOOGL', name: 'Alphabet Inc.', shares: 40000, price: 165.40, change: 0.8, alloc: 4 },
+        { ticker: 'BND', name: 'Bond Index', shares: 50000, price: 72.10, change: 0.1, alloc: 4 },
+      ]},
+    { name: 'Satya Nadella', handle: '@satlonerror', color: '#00A4EF', initials: 'SN', verified: true, isPublic: true, followers: 9500000, portfolio: '+398% all time', totalValue: 850000000,
+      holdings: [
+        { ticker: 'MSFT', name: 'Microsoft Corp.', shares: 1500000, price: 415.60, change: 0.6, alloc: 82 },
+        { ticker: 'AAPL', name: 'Apple Inc.', shares: 50000, price: 192.30, change: 1.85, alloc: 5 },
+        { ticker: 'VOO', name: 'Vanguard S&P 500', shares: 30000, price: 438.20, change: 0.72, alloc: 7 },
+        { ticker: 'AMZN', name: 'Amazon.com', shares: 25000, price: 186.90, change: 1.5, alloc: 6 },
+      ]},
+    { name: 'Sundar Pichai', handle: '@sundarpichai', color: '#4285F4', initials: 'SP', verified: true, isPublic: true, followers: 7200000, portfolio: '+310% all time', totalValue: 1200000000,
+      holdings: [
+        { ticker: 'GOOGL', name: 'Alphabet Inc.', shares: 5500000, price: 165.40, change: 0.8, alloc: 85 },
+        { ticker: 'MSFT', name: 'Microsoft Corp.', shares: 20000, price: 415.60, change: 0.6, alloc: 4 },
+        { ticker: 'AAPL', name: 'Apple Inc.', shares: 30000, price: 192.30, change: 1.85, alloc: 3 },
+        { ticker: 'VOO', name: 'Vanguard S&P 500', shares: 40000, price: 438.20, change: 0.72, alloc: 5 },
+        { ticker: 'BTC', name: 'Bitcoin', shares: 50, price: 67500, change: 3.1, alloc: 3 },
+      ]},
+];
+
+// Combine all searchable users
+function getAllSearchableUsers() {
+    const all = [];
+    searchableAccounts.forEach(u => all.push(u));
+    discoverUsers.forEach(u => { if (!all.find(a => a.handle === u.handle)) all.push({...u, verified: false}); });
+    followers.forEach(u => { if (!all.find(a => a.handle === u.handle)) all.push({...u, verified: false, totalValue: null}); });
+    following.forEach(u => { if (!all.find(a => a.handle === u.handle)) all.push({...u, verified: false, totalValue: null}); });
+    return all;
+}
 
 const aiInsights = [
     'Your portfolio is up 1.28% today. Consider diversifying — 45% of your holdings are in tech. Adding bonds or REITs could reduce volatility.',
@@ -2677,6 +2873,155 @@ function updateNotifCount() {
     badge.textContent = count;
     badge.style.display = count > 0 ? '' : 'none';
     dot.style.display = count > 0 ? '' : 'none';
+}
+
+// ===== SEARCH =====
+function openSearch() {
+    document.getElementById('searchOverlay').classList.add('show');
+    document.getElementById('searchPanel').classList.add('show');
+    document.getElementById('searchInput').value = '';
+    document.getElementById('searchInput').focus();
+    showSuggested();
+}
+
+function closeSearch() {
+    document.getElementById('searchOverlay').classList.remove('show');
+    document.getElementById('searchPanel').classList.remove('show');
+}
+
+function formatFollowers(n) {
+    if (n >= 1000000000) return (n / 1000000000).toFixed(0) + 'B';
+    if (n >= 1000000) return (n / 1000000).toFixed(0) + 'M';
+    if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
+    return n.toString();
+}
+
+function showSuggested() {
+    const results = document.getElementById('searchResults');
+    const verified = searchableAccounts.filter(u => u.verified);
+    results.innerHTML = `
+        <div class="search-section-label">Featured Investors</div>
+        ${verified.map((u, i) => renderSearchResult(u, searchableAccounts.indexOf(u), true)).join('')}
+        <div class="search-section-label">People You May Know</div>
+        ${discoverUsers.slice(0, 3).map(u => renderSearchResult(u, -1, false)).join('')}
+    `;
+}
+
+function renderSearchResult(u, idx, isSearchable) {
+    const clickHandler = isSearchable
+        ? `viewSearchProfile(${idx})`
+        : `viewSearchProfileByHandle('${u.handle}')`;
+    return `
+        <div class="search-result" onclick="${clickHandler}">
+            <div class="search-avatar" style="background: ${u.color}">${u.initials}</div>
+            <div class="search-result-info">
+                <div class="search-result-name">
+                    ${u.name}${u.verified ? '<span class="search-result-badge">✓ Verified</span>' : ''}
+                </div>
+                <div class="search-result-handle">${u.handle}</div>
+                <div class="search-result-meta">${u.followers ? formatFollowers(u.followers) + ' followers' : ''}${u.portfolio ? ' · ' + u.portfolio : ''}</div>
+            </div>
+        </div>
+    `;
+}
+
+function handleSearch(query) {
+    const results = document.getElementById('searchResults');
+    if (!query.trim()) {
+        showSuggested();
+        return;
+    }
+
+    const q = query.toLowerCase();
+    const allUsers = getAllSearchableUsers();
+    const matches = allUsers.filter(u =>
+        u.name.toLowerCase().includes(q) ||
+        u.handle.toLowerCase().includes(q) ||
+        (u.holdings && u.holdings.some(h => (h.ticker || h).toString().toLowerCase().includes(q)))
+    );
+
+    if (matches.length === 0) {
+        results.innerHTML = `
+            <div class="search-empty">
+                <div class="search-empty-icon">🔍</div>
+                <div>No results for "${query}"</div>
+            </div>`;
+        return;
+    }
+
+    results.innerHTML = `
+        <div class="search-section-label">${matches.length} result${matches.length !== 1 ? 's' : ''}</div>
+        ${matches.map(u => {
+            const saIdx = searchableAccounts.findIndex(a => a.handle === u.handle);
+            const dIdx = discoverUsers.findIndex(a => a.handle === u.handle);
+            if (saIdx >= 0) return renderSearchResult(u, saIdx, true);
+            if (dIdx >= 0) return renderSearchResult(u, dIdx, false);
+            return renderSearchResult(u, -1, false);
+        }).join('')}
+    `;
+}
+
+function viewSearchProfile(index) {
+    closeSearch();
+    const u = searchableAccounts[index];
+    const modal = document.getElementById('portfolioViewerModal');
+    const content = document.getElementById('portfolioViewerContent');
+
+    content.innerHTML = `
+        <div class="portfolio-viewer-header">
+            <div class="pv-avatar" style="background: ${u.color}">${u.initials}</div>
+            <div>
+                <div class="pv-name">${u.name}${u.verified ? ' <span class="search-result-badge">✓ Verified</span>' : ''}</div>
+                <div class="pv-handle">${u.handle} · ${formatFollowers(u.followers)} followers</div>
+            </div>
+        </div>
+
+        <div class="pv-meta">
+            <div class="pv-meta-item">
+                <div class="pv-meta-val">${u.totalValue >= 1000000000 ? '$' + (u.totalValue / 1000000000).toFixed(0) + 'B' : u.totalValue >= 1000000 ? '$' + (u.totalValue / 1000000).toFixed(0) + 'M' : '$' + u.totalValue.toLocaleString()}</div>
+                <div class="pv-meta-label">Portfolio Value</div>
+            </div>
+            <div class="pv-meta-item">
+                <div class="pv-meta-val green">${u.portfolio}</div>
+                <div class="pv-meta-label">All Time Return</div>
+            </div>
+            <div class="pv-meta-item">
+                <div class="pv-meta-val">${u.holdings.length}</div>
+                <div class="pv-meta-label">Holdings</div>
+            </div>
+        </div>
+
+        <div class="pv-section-title">Holdings</div>
+        ${u.holdings.map(h => `
+            <div class="pv-holding">
+                <div class="pv-ticker-icon">${h.ticker.substring(0, 2)}</div>
+                <div class="pv-holding-info">
+                    <div class="pv-holding-name">${h.ticker}</div>
+                    <div class="pv-holding-detail">${h.name}</div>
+                    <div class="pv-alloc-bar"><div class="pv-alloc-fill" style="width:${h.alloc}%"></div></div>
+                </div>
+                <div class="pv-holding-right">
+                    <div class="pv-holding-alloc">${h.alloc}%</div>
+                    <div class="pv-holding-change ${h.change >= 0 ? 'up' : 'down'}">${h.change >= 0 ? '+' : ''}${h.change.toFixed(1)}%</div>
+                </div>
+            </div>
+        `).join('')}
+
+        <button class="submit-btn" style="margin-top:16px" onclick="closeModals(); showToast('Following ${u.name}')">Follow ${u.name}</button>
+    `;
+
+    modal.classList.add('show');
+}
+
+function viewSearchProfileByHandle(handle) {
+    const dIdx = discoverUsers.findIndex(u => u.handle === handle);
+    if (dIdx >= 0) {
+        closeSearch();
+        viewPortfolio(dIdx);
+        return;
+    }
+    closeSearch();
+    showToast('Profile coming soon!');
 }
 
 // ===== AI ADVISOR =====
