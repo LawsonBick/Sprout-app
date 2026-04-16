@@ -3574,7 +3574,7 @@ function openLesson(index) {
     viewer.innerHTML = html;
     viewer.classList.add('active');
     list.style.display = 'none';
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    viewer.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function closeLesson() {
