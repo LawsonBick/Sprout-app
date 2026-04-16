@@ -388,6 +388,20 @@
         }
 
         /* ===== GOALS ===== */
+        .goals-summary {
+            background: var(--green-gradient);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 16px;
+            color: white;
+        }
+        .goals-summary-title { font-size: 13px; opacity: 0.85; margin-bottom: 4px; }
+        .goals-summary-row { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 14px; }
+        .goals-summary-amount { font-family: 'DM Serif Display', serif; font-size: 28px; }
+        .goals-summary-sub { font-size: 13px; opacity: 0.8; }
+        .goals-summary-bar { height: 6px; background: rgba(255,255,255,0.25); border-radius: 3px; overflow: hidden; margin-bottom: 10px; }
+        .goals-summary-bar-fill { height: 100%; background: white; border-radius: 3px; transition: width 0.8s; }
+        .goals-summary-stats { display: flex; justify-content: space-between; font-size: 12px; opacity: 0.85; }
         .goal-card {
             background: var(--bg-card);
             border-radius: var(--radius);
@@ -395,12 +409,21 @@
             margin-bottom: 14px;
             box-shadow: var(--shadow);
             border: 1px solid var(--border);
+            cursor: pointer;
+            transition: transform 0.15s;
         }
+        .goal-card:active { transform: scale(0.98); }
         .goal-header {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
             margin-bottom: 12px;
+        }
+        .goal-header-left { display: flex; gap: 14px; align-items: center; }
+        .goal-icon-wrap {
+            width: 48px; height: 48px; border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px;
         }
         .goal-icon {
             font-size: 28px;
@@ -413,6 +436,13 @@
         .goal-target {
             font-size: 13px;
             color: var(--text-secondary);
+        }
+        .goal-category {
+            font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;
+            padding: 2px 8px; border-radius: 6px; font-weight: 600; display: inline-block; margin-top: 3px;
+        }
+        .goal-pct {
+            font-size: 22px; font-weight: 700; font-family: 'DM Serif Display', serif; color: var(--green-dark);
         }
         .goal-progress-bar {
             height: 8px;
@@ -433,6 +463,37 @@
             font-size: 12px;
             color: var(--text-muted);
         }
+        .goal-details { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+        .goal-detail-item { background: var(--bg-page); border-radius: 10px; padding: 10px 12px; }
+        .goal-detail-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px; }
+        .goal-detail-val { font-size: 14px; font-weight: 700; margin-top: 2px; }
+
+        /* Goal detail modal */
+        .goal-modal-ring { display: flex; justify-content: center; margin: 16px 0; }
+        .goal-modal-actions { display: flex; gap: 10px; margin: 16px 0; }
+        .goal-modal-actions button {
+            flex: 1; padding: 12px; border: none; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer;
+        }
+        .goal-action-add { background: var(--green-gradient); color: white; }
+        .goal-action-edit { background: var(--bg-page); color: var(--text-primary); }
+        .goal-history { margin-top: 16px; }
+        .goal-history-title { font-size: 14px; font-weight: 700; margin-bottom: 10px; }
+        .goal-history-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 0; border-bottom: 1px solid var(--border);
+        }
+        .goal-history-item:last-child { border-bottom: none; }
+        .goal-history-left { display: flex; align-items: center; gap: 10px; }
+        .goal-history-icon { width: 32px; height: 32px; border-radius: 50%; background: rgba(45,138,78,0.1); display: flex; align-items: center; justify-content: center; font-size: 14px; }
+        .goal-history-note { font-size: 13px; font-weight: 500; }
+        .goal-history-date { font-size: 11px; color: var(--text-muted); }
+        .goal-history-amount { font-size: 14px; font-weight: 700; color: var(--green-dark); }
+        .goal-add-form { display: none; margin-top: 12px; padding: 16px; background: var(--bg-page); border-radius: 12px; }
+        .goal-add-form.show { display: block; }
+        .goal-milestone { display: flex; align-items: center; gap: 8px; padding: 6px 0; font-size: 12px; }
+        .goal-milestone-dot { width: 8px; height: 8px; border-radius: 50%; }
+        .goal-milestone-line { flex: 1; height: 1px; background: var(--border); }
+        .goal-on-track { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 8px; }
 
         /* ===== NEWS ===== */
         .news-item {
@@ -1702,15 +1763,9 @@
 
     <!-- ==================== GOALS ==================== -->
     <div class="page" id="page-goals">
-        <div class="ai-card">
-            <div class="ai-label">🎯 Goal Tracking</div>
-            <div class="ai-title">Stay on Track</div>
-            <div class="ai-text">Setting clear financial goals helps you stay disciplined. Track your progress and adjust your strategy as needed.</div>
-        </div>
-
+        <div id="goalsSummary"></div>
         <div id="goalsList"></div>
-
-        <button class="add-btn" onclick="openAddGoal()">🎯 Add New Goal</button>
+        <button class="add-btn" onclick="openAddGoal()">+ Add New Goal</button>
     </div>
 
     <!-- ==================== NEWS ==================== -->
@@ -1913,6 +1968,26 @@
             <input class="form-input" id="inputGoalCurrent" type="number" step="100" placeholder="e.g. 3000">
         </div>
         <div class="form-group">
+            <label class="form-label">Monthly Contribution ($)</label>
+            <input class="form-input" id="inputGoalMonthly" type="number" step="50" placeholder="e.g. 500">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Target Date</label>
+            <input class="form-input" id="inputGoalDeadline" type="date">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Category</label>
+            <select class="form-select" id="inputGoalCategory">
+                <option value="safety">Safety Net</option>
+                <option value="housing">Housing</option>
+                <option value="lifestyle">Lifestyle</option>
+                <option value="education">Education</option>
+                <option value="retirement">Retirement</option>
+                <option value="family">Family</option>
+                <option value="business">Business</option>
+            </select>
+        </div>
+        <div class="form-group">
             <label class="form-label">Icon</label>
             <select class="form-select" id="inputGoalIcon">
                 <option value="🏠">🏠 House</option>
@@ -1923,6 +1998,7 @@
                 <option value="🛡">🛡 Emergency Fund</option>
                 <option value="👶">👶 Family</option>
                 <option value="💻">💻 Business</option>
+                <option value="🏦">🏦 Retirement</option>
             </select>
         </div>
         <button class="submit-btn" onclick="addGoal()">Create Goal</button>
@@ -1974,6 +2050,14 @@
     </div>
 </div>
 
+<!-- GOAL DETAIL MODAL -->
+<div class="modal-overlay" id="goalDetailModal">
+    <div class="modal">
+        <div class="modal-handle"></div>
+        <div id="goalDetailContent"></div>
+    </div>
+</div>
+
 <!-- STOCK CHART MODAL -->
 <div class="modal-overlay" id="stockChartModal">
     <div class="modal">
@@ -1996,9 +2080,29 @@ let holdings = [
 ];
 
 let goals = [
-    { name: 'Emergency Fund', target: 10000, current: 6500, icon: '🛡' },
-    { name: 'Down Payment', target: 50000, current: 12400, icon: '🏠' },
-    { name: 'Vacation Fund', target: 3000, current: 2100, icon: '🏖' },
+    { name: 'Emergency Fund', target: 10000, current: 6500, icon: '🛡', monthly: 500, deadline: '2026-10-01', created: '2025-11-01', category: 'safety',
+      history: [
+        { date: '2026-04-01', amount: 500, note: 'Monthly deposit' },
+        { date: '2026-03-15', amount: 200, note: 'Bonus savings' },
+        { date: '2026-03-01', amount: 500, note: 'Monthly deposit' },
+        { date: '2026-02-01', amount: 500, note: 'Monthly deposit' },
+        { date: '2026-01-01', amount: 500, note: 'Monthly deposit' },
+      ]},
+    { name: 'Down Payment', target: 50000, current: 12400, icon: '🏠', monthly: 800, deadline: '2029-06-01', created: '2025-06-01', category: 'housing',
+      history: [
+        { date: '2026-04-01', amount: 800, note: 'Monthly deposit' },
+        { date: '2026-03-01', amount: 800, note: 'Monthly deposit' },
+        { date: '2026-02-14', amount: 1000, note: 'Tax refund' },
+        { date: '2026-02-01', amount: 800, note: 'Monthly deposit' },
+        { date: '2026-01-01', amount: 800, note: 'Monthly deposit' },
+      ]},
+    { name: 'Vacation Fund', target: 3000, current: 2100, icon: '🏖', monthly: 200, deadline: '2026-08-01', created: '2026-01-01', category: 'lifestyle',
+      history: [
+        { date: '2026-04-01', amount: 200, note: 'Monthly deposit' },
+        { date: '2026-03-20', amount: 150, note: 'Side hustle' },
+        { date: '2026-03-01', amount: 200, note: 'Monthly deposit' },
+        { date: '2026-02-01', amount: 200, note: 'Monthly deposit' },
+      ]},
 ];
 
 const newsItems = [
@@ -3079,35 +3183,290 @@ function drawChart(timeframe) {
 }
 
 // ===== GOALS =====
+const categoryColors = {
+    safety: { bg: '#E8F5E9', text: '#2E7D32', label: 'Safety Net' },
+    housing: { bg: '#E3F2FD', text: '#1565C0', label: 'Housing' },
+    lifestyle: { bg: '#FFF3E0', text: '#E65100', label: 'Lifestyle' },
+    education: { bg: '#F3E5F5', text: '#7B1FA2', label: 'Education' },
+    retirement: { bg: '#E0F2F1', text: '#00695C', label: 'Retirement' },
+    family: { bg: '#FCE4EC', text: '#C62828', label: 'Family' },
+    business: { bg: '#ECEFF1', text: '#37474F', label: 'Business' },
+};
+
+function getGoalStatus(g) {
+    const pct = g.current / g.target * 100;
+    if (pct >= 100) return { label: 'Complete!', color: '#2E7D32', bg: '#E8F5E9', icon: '✓' };
+    if (!g.deadline) return { label: 'In Progress', color: '#1565C0', bg: '#E3F2FD', icon: '→' };
+    const now = new Date();
+    const deadline = new Date(g.deadline);
+    const monthsLeft = (deadline.getFullYear() - now.getFullYear()) * 12 + (deadline.getMonth() - now.getMonth());
+    const remaining = g.target - g.current;
+    const neededPerMonth = monthsLeft > 0 ? remaining / monthsLeft : remaining;
+    if (g.monthly >= neededPerMonth) return { label: 'On Track', color: '#2E7D32', bg: '#E8F5E9', icon: '✓' };
+    if (g.monthly >= neededPerMonth * 0.7) return { label: 'Slightly Behind', color: '#E65100', bg: '#FFF3E0', icon: '!' };
+    return { label: 'Behind Schedule', color: '#C62828', bg: '#FCE4EC', icon: '!!' };
+}
+
+function getProjectedDate(g) {
+    if (g.current >= g.target) return 'Completed!';
+    if (!g.monthly || g.monthly <= 0) return 'Set a monthly contribution';
+    const remaining = g.target - g.current;
+    const months = Math.ceil(remaining / g.monthly);
+    const projected = new Date();
+    projected.setMonth(projected.getMonth() + months);
+    return projected.toLocaleDateString([], { month: 'long', year: 'numeric' });
+}
+
 function renderGoals() {
+    // Summary card
+    const totalTarget = goals.reduce((s, g) => s + g.target, 0);
+    const totalCurrent = goals.reduce((s, g) => s + g.current, 0);
+    const totalPct = totalTarget > 0 ? (totalCurrent / totalTarget * 100) : 0;
+    const totalMonthly = goals.reduce((s, g) => s + (g.monthly || 0), 0);
+
+    document.getElementById('goalsSummary').innerHTML = `
+        <div class="goals-summary">
+            <div class="goals-summary-title">Total Goal Progress</div>
+            <div class="goals-summary-row">
+                <div class="goals-summary-amount">$${totalCurrent.toLocaleString()}</div>
+                <div class="goals-summary-sub">of $${totalTarget.toLocaleString()}</div>
+            </div>
+            <div class="goals-summary-bar">
+                <div class="goals-summary-bar-fill" style="width:${totalPct}%"></div>
+            </div>
+            <div class="goals-summary-stats">
+                <span>${goals.length} active goal${goals.length !== 1 ? 's' : ''}</span>
+                <span>$${totalMonthly.toLocaleString()}/mo contributing</span>
+                <span>${totalPct.toFixed(0)}% complete</span>
+            </div>
+        </div>
+    `;
+
+    // Goal cards
     const list = document.getElementById('goalsList');
-    list.innerHTML = goals.map(g => {
+    list.innerHTML = goals.map((g, i) => {
         const pct = Math.min(100, (g.current / g.target * 100));
         const remaining = g.target - g.current;
+        const status = getGoalStatus(g);
+        const cat = categoryColors[g.category] || categoryColors.safety;
+        const projected = getProjectedDate(g);
+
+        // Months until deadline
+        let deadlineText = '';
+        if (g.deadline) {
+            const now = new Date();
+            const dl = new Date(g.deadline);
+            const mLeft = Math.max(0, (dl.getFullYear() - now.getFullYear()) * 12 + (dl.getMonth() - now.getMonth()));
+            deadlineText = mLeft > 0 ? `${mLeft} month${mLeft !== 1 ? 's' : ''} left` : 'Past deadline';
+        }
+
         return `
-            <div class="goal-card">
+            <div class="goal-card" onclick="openGoalDetail(${i})">
                 <div class="goal-header">
-                    <div>
-                        <div class="goal-icon">${g.icon}</div>
-                        <div class="goal-name">${g.name}</div>
-                        <div class="goal-target">Target: $${g.target.toLocaleString()}</div>
-                    </div>
-                    <div style="text-align: right">
-                        <div style="font-size: 22px; font-weight: 700; font-family: 'DM Serif Display', serif; color: var(--green-dark)">
-                            ${pct.toFixed(0)}%
+                    <div class="goal-header-left">
+                        <div class="goal-icon-wrap" style="background:${cat.bg}">${g.icon}</div>
+                        <div>
+                            <div class="goal-name">${g.name}</div>
+                            <div class="goal-target">$${g.current.toLocaleString()} of $${g.target.toLocaleString()}</div>
+                            <div class="goal-category" style="background:${cat.bg};color:${cat.text}">${cat.label}</div>
                         </div>
+                    </div>
+                    <div style="text-align:right">
+                        <div class="goal-pct">${pct.toFixed(0)}%</div>
+                        <div class="goal-on-track" style="background:${status.bg};color:${status.color}">${status.icon} ${status.label}</div>
                     </div>
                 </div>
                 <div class="goal-progress-bar">
-                    <div class="goal-progress-fill" style="width: ${pct}%"></div>
+                    <div class="goal-progress-fill" style="width:${pct}%"></div>
                 </div>
                 <div class="goal-stats">
-                    <span>$${g.current.toLocaleString()} saved</span>
                     <span>$${remaining.toLocaleString()} remaining</span>
+                    <span>${deadlineText}</span>
+                </div>
+                <div class="goal-details">
+                    <div class="goal-detail-item">
+                        <div class="goal-detail-label">Monthly</div>
+                        <div class="goal-detail-val">$${(g.monthly || 0).toLocaleString()}</div>
+                    </div>
+                    <div class="goal-detail-item">
+                        <div class="goal-detail-label">Projected</div>
+                        <div class="goal-detail-val" style="font-size:12px">${projected}</div>
+                    </div>
                 </div>
             </div>
         `;
     }).join('');
+}
+
+function openGoalDetail(idx) {
+    const g = goals[idx];
+    const pct = Math.min(100, (g.current / g.target * 100));
+    const remaining = g.target - g.current;
+    const status = getGoalStatus(g);
+    const cat = categoryColors[g.category] || categoryColors.safety;
+    const projected = getProjectedDate(g);
+
+    // Milestones
+    const milestones = [25, 50, 75, 100];
+    const milestonesHtml = milestones.map(m => {
+        const reached = pct >= m;
+        return `<div class="goal-milestone">
+            <div class="goal-milestone-dot" style="background:${reached ? 'var(--green-dark)' : 'var(--border)'}"></div>
+            <span style="color:${reached ? 'var(--green-dark)' : 'var(--text-muted)'};font-weight:${reached ? '600' : '400'}">${m}% — $${(g.target * m / 100).toLocaleString()}</span>
+            ${reached ? '<span style="color:var(--green-dark)">✓</span>' : ''}
+        </div>`;
+    }).join('');
+
+    // History
+    const historyHtml = (g.history || []).map(h => `
+        <div class="goal-history-item">
+            <div class="goal-history-left">
+                <div class="goal-history-icon">💵</div>
+                <div>
+                    <div class="goal-history-note">${h.note}</div>
+                    <div class="goal-history-date">${new Date(h.date).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+                </div>
+            </div>
+            <div class="goal-history-amount">+$${h.amount.toLocaleString()}</div>
+        </div>
+    `).join('');
+
+    // Deadline info
+    let deadlineInfo = '';
+    if (g.deadline) {
+        const dl = new Date(g.deadline);
+        deadlineInfo = dl.toLocaleDateString([], { month: 'long', day: 'numeric', year: 'numeric' });
+    }
+
+    const content = document.getElementById('goalDetailContent');
+    content.innerHTML = `
+        <div style="text-align:center; margin-bottom:16px;">
+            <div style="font-size:48px; margin-bottom:8px;">${g.icon}</div>
+            <div style="font-family:'DM Serif Display',serif; font-size:22px;">${g.name}</div>
+            <div class="goal-category" style="background:${cat.bg};color:${cat.text};margin-top:6px;">${cat.label}</div>
+        </div>
+
+        <div class="goal-modal-ring">
+            <canvas id="goalRingCanvas" width="160" height="160"></canvas>
+        </div>
+
+        <div style="text-align:center; margin-bottom:16px;">
+            <div style="font-family:'DM Serif Display',serif; font-size:28px; color:var(--green-dark);">$${g.current.toLocaleString()}</div>
+            <div style="font-size:13px; color:var(--text-secondary);">of $${g.target.toLocaleString()} goal</div>
+            <div class="goal-on-track" style="background:${status.bg};color:${status.color};margin-top:8px;display:inline-flex;">${status.icon} ${status.label}</div>
+        </div>
+
+        <div class="sc-stats" style="margin-bottom:16px;">
+            <div class="sc-stat"><div class="sc-stat-label">Monthly</div><div class="sc-stat-val">$${(g.monthly || 0).toLocaleString()}</div></div>
+            <div class="sc-stat"><div class="sc-stat-label">Remaining</div><div class="sc-stat-val">$${remaining.toLocaleString()}</div></div>
+            <div class="sc-stat"><div class="sc-stat-label">Projected</div><div class="sc-stat-val" style="font-size:13px">${projected}</div></div>
+            <div class="sc-stat"><div class="sc-stat-label">Deadline</div><div class="sc-stat-val" style="font-size:13px">${deadlineInfo || 'None set'}</div></div>
+        </div>
+
+        <div class="goal-modal-actions">
+            <button class="goal-action-add" onclick="toggleGoalAddFunds(${idx})">+ Add Funds</button>
+            <button class="goal-action-edit" onclick="removeGoal(${idx})">Delete Goal</button>
+        </div>
+
+        <div class="goal-add-form" id="goalAddFundsForm">
+            <div class="form-group" style="margin-bottom:10px;">
+                <label class="form-label">Amount ($)</label>
+                <input class="form-input" id="goalAddAmount" type="number" step="50" placeholder="e.g. 200">
+            </div>
+            <div class="form-group" style="margin-bottom:10px;">
+                <label class="form-label">Note</label>
+                <input class="form-input" id="goalAddNote" placeholder="e.g. Bonus savings">
+            </div>
+            <button class="submit-btn" onclick="addFundsToGoal(${idx})">Confirm Deposit</button>
+        </div>
+
+        <div style="font-size:14px; font-weight:700; margin:16px 0 10px;">Milestones</div>
+        ${milestonesHtml}
+
+        <div class="goal-history">
+            <div class="goal-history-title">Recent Activity</div>
+            ${historyHtml || '<div style="text-align:center;color:var(--text-muted);padding:16px;font-size:13px;">No activity yet</div>'}
+        </div>
+    `;
+
+    document.getElementById('goalDetailModal').classList.add('show');
+
+    // Draw ring chart
+    setTimeout(() => drawGoalRing(pct), 50);
+}
+
+function drawGoalRing(pct) {
+    const canvas = document.getElementById('goalRingCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = 160 * dpr;
+    canvas.height = 160 * dpr;
+    canvas.style.width = '160px';
+    canvas.style.height = '160px';
+    ctx.scale(dpr, dpr);
+
+    const cx = 80, cy = 80, r = 60, lw = 12;
+    const startAngle = -Math.PI / 2;
+    const endAngle = startAngle + (Math.PI * 2 * Math.min(pct, 100) / 100);
+
+    // Background ring
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.strokeStyle = '#E8F5E9';
+    ctx.lineWidth = lw;
+    ctx.lineCap = 'round';
+    ctx.stroke();
+
+    // Progress ring
+    if (pct > 0) {
+        const grad = ctx.createLinearGradient(0, 0, 160, 160);
+        grad.addColorStop(0, '#1a5c2e');
+        grad.addColorStop(1, '#4CAF50');
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, startAngle, endAngle);
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = lw;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+    }
+
+    // Center text
+    ctx.fillStyle = '#1a5c2e';
+    ctx.font = 'bold 28px "DM Serif Display", serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(pct.toFixed(0) + '%', cx, cy - 4);
+    ctx.font = '11px "DM Sans", sans-serif';
+    ctx.fillStyle = '#999';
+    ctx.fillText('complete', cx, cy + 16);
+}
+
+function toggleGoalAddFunds(idx) {
+    const form = document.getElementById('goalAddFundsForm');
+    form.classList.toggle('show');
+}
+
+function addFundsToGoal(idx) {
+    const amount = parseFloat(document.getElementById('goalAddAmount').value);
+    const note = document.getElementById('goalAddNote').value.trim() || 'Manual deposit';
+    if (!amount || amount <= 0) { showToast('Enter a valid amount'); return; }
+
+    goals[idx].current += amount;
+    if (!goals[idx].history) goals[idx].history = [];
+    goals[idx].history.unshift({ date: new Date().toISOString().split('T')[0], amount, note });
+
+    renderGoals();
+    openGoalDetail(idx);
+    showToast(`+$${amount.toLocaleString()} added to ${goals[idx].name}`);
+}
+
+function removeGoal(idx) {
+    const name = goals[idx].name;
+    goals.splice(idx, 1);
+    renderGoals();
+    closeModals();
+    showToast(`"${name}" deleted`);
 }
 
 // ===== NEWS =====
@@ -3668,6 +4027,9 @@ function addGoal() {
     const name = document.getElementById('inputGoalName').value.trim();
     const target = parseFloat(document.getElementById('inputGoalTarget').value);
     const current = parseFloat(document.getElementById('inputGoalCurrent').value) || 0;
+    const monthly = parseFloat(document.getElementById('inputGoalMonthly').value) || 0;
+    const deadline = document.getElementById('inputGoalDeadline').value || '';
+    const category = document.getElementById('inputGoalCategory').value;
     const icon = document.getElementById('inputGoalIcon').value;
 
     if (!name || !target) {
@@ -3675,12 +4037,13 @@ function addGoal() {
         return;
     }
 
-    goals.push({ name, target, current, icon });
+    goals.push({ name, target, current, monthly, deadline, category, icon, created: new Date().toISOString().split('T')[0], history: [] });
     renderGoals();
     closeModals();
     showToast(`Goal "${name}" created!`);
 
-    ['inputGoalName', 'inputGoalTarget', 'inputGoalCurrent'].forEach(id => document.getElementById(id).value = '');
+    ['inputGoalName', 'inputGoalTarget', 'inputGoalCurrent', 'inputGoalMonthly'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('inputGoalDeadline').value = '';
 }
 
 // ===== TOAST =====
