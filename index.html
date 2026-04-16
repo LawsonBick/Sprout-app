@@ -1728,8 +1728,8 @@
         <div class="card">
             <div class="card-header">
                 <div>
-                    <div class="card-title">Market Movers</div>
-                    <div class="card-subtitle">Today's biggest moves</div>
+                    <div class="card-title">🔥 Top Movers</div>
+                    <div class="card-subtitle" id="moversSubtitle">This week's biggest moves</div>
                 </div>
             </div>
             <div id="moversList"></div>
@@ -2009,11 +2009,17 @@ const newsItems = [
     { source: 'WSJ', title: 'Why Index Funds Continue to Outperform Active Managers', time: '12h ago', emoji: '📊' },
 ];
 
-const movers = [
+let movers = [
     { ticker: 'NVDA', name: 'NVIDIA Corp.', price: 878.40, change: 4.2, color: '#76B900' },
     { ticker: 'TSLA', name: 'Tesla Inc.', price: 182.50, change: -3.1, color: '#CC0000' },
     { ticker: 'META', name: 'Meta Platforms', price: 512.30, change: 2.8, color: '#0668E1' },
     { ticker: 'AMZN', name: 'Amazon.com', price: 186.90, change: 1.5, color: '#FF9900' },
+    { ticker: 'AAPL', name: 'Apple Inc.', price: 192.30, change: 1.2, color: '#333333' },
+    { ticker: 'GOOGL', name: 'Alphabet Inc.', price: 165.40, change: 0.8, color: '#4285F4' },
+    { ticker: 'MSFT', name: 'Microsoft Corp.', price: 415.60, change: 0.6, color: '#00A4EF' },
+    { ticker: 'BTC', name: 'Bitcoin', price: 67500, change: 2.4, color: '#F7931A', crypto: true },
+    { ticker: 'ETH', name: 'Ethereum', price: 3200, change: 1.8, color: '#627EEA', crypto: true },
+    { ticker: 'SOL', name: 'Solana', price: 145, change: 5.1, color: '#9945FF', crypto: true },
 ];
 
 const lessons = [
@@ -2453,9 +2459,87 @@ async function fetchRealTimePrices() {
     updatedEl.textContent = 'Live prices \u00B7 Updated ' + now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
 }
 
+async function fetchWeeklyMovers() {
+    const tickers = [
+        { ticker: 'NVDA', name: 'NVIDIA Corp.', color: '#76B900' },
+        { ticker: 'TSLA', name: 'Tesla Inc.', color: '#CC0000' },
+        { ticker: 'META', name: 'Meta Platforms', color: '#0668E1' },
+        { ticker: 'AMZN', name: 'Amazon.com', color: '#FF9900' },
+        { ticker: 'AAPL', name: 'Apple Inc.', color: '#333333' },
+        { ticker: 'GOOGL', name: 'Alphabet Inc.', color: '#4285F4' },
+        { ticker: 'MSFT', name: 'Microsoft Corp.', color: '#00A4EF' },
+        { ticker: 'AMD', name: 'Advanced Micro', color: '#ED1C24' },
+        { ticker: 'NFLX', name: 'Netflix Inc.', color: '#E50914' },
+        { ticker: 'CRM', name: 'Salesforce Inc.', color: '#00A1E0' },
+        { ticker: 'COIN', name: 'Coinbase Global', color: '#0052FF' },
+        { ticker: 'PLTR', name: 'Palantir Tech.', color: '#101010' },
+    ];
+
+    const cryptoTickers = [
+        { ticker: 'BTC', name: 'Bitcoin', color: '#F7931A', id: 'bitcoin', crypto: true },
+        { ticker: 'ETH', name: 'Ethereum', color: '#627EEA', id: 'ethereum', crypto: true },
+        { ticker: 'SOL', name: 'Solana', color: '#9945FF', id: 'solana', crypto: true },
+        { ticker: 'DOGE', name: 'Dogecoin', color: '#C3A634', id: 'dogecoin', crypto: true },
+    ];
+
+    const results = [];
+
+    // Fetch stock weekly changes from Yahoo Finance (5d range)
+    for (const t of tickers) {
+        try {
+            const url = `${YAHOO_PROXY}${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${t.ticker}?interval=1d&range=5d`)}`;
+            const res = await fetch(url);
+            const data = await res.json();
+            const result = data.chart.result[0];
+            const closes = result.indicators.quote[0].close.filter(c => c !== null);
+            if (closes.length >= 2) {
+                const weekStart = closes[0];
+                const current = closes[closes.length - 1];
+                const weekChange = ((current - weekStart) / weekStart) * 100;
+                results.push({ ...t, price: current, change: parseFloat(weekChange.toFixed(2)) });
+            }
+        } catch (e) {
+            console.log(`Weekly mover fetch failed for ${t.ticker}:`, e);
+        }
+    }
+
+    // Fetch crypto weekly changes
+    try {
+        const ids = cryptoTickers.map(c => c.id).join(',');
+        const url = `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_7d_change=true`;
+        let res;
+        try {
+            res = await fetch(url);
+            if (!res.ok) throw new Error();
+        } catch {
+            res = await fetch(`${YAHOO_PROXY}${encodeURIComponent(url)}`);
+        }
+        const data = await res.json();
+        for (const ct of cryptoTickers) {
+            if (data[ct.id]) {
+                results.push({
+                    ticker: ct.ticker, name: ct.name, color: ct.color, crypto: true,
+                    price: data[ct.id].usd,
+                    change: parseFloat((data[ct.id].usd_7d_change || 0).toFixed(2))
+                });
+            }
+        }
+    } catch (e) {
+        console.log('Crypto weekly fetch failed:', e);
+    }
+
+    // Sort by absolute change descending (biggest movers first)
+    results.sort((a, b) => Math.abs(b.change) - Math.abs(a.change));
+    if (results.length > 0) {
+        movers = results;
+        renderMovers();
+    }
+}
+
 let priceInterval = null;
 function startPriceUpdates() {
     fetchRealTimePrices();
+    fetchWeeklyMovers();
     priceInterval = setInterval(fetchRealTimePrices, 3000);
 }
 
@@ -3043,16 +3127,20 @@ function renderNews() {
 
 function renderMovers() {
     const list = document.getElementById('moversList');
+    const formatPrice = (m) => {
+        if (m.price >= 10000) return '$' + m.price.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+        return '$' + m.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    };
     list.innerHTML = movers.map(m => `
         <div class="watchlist-item" onclick="openStockChart('${m.ticker}', '${m.name.replace(/'/g, "\\'")}', '${m.color}')" style="cursor:pointer">
-            <div class="holding-icon" style="background: ${m.color}15; color: ${m.color}">${m.ticker.substring(0, 2)}</div>
+            <div class="holding-icon" style="background: ${m.color}15; color: ${m.color}">${m.crypto ? '₿' : m.ticker.substring(0, 2)}</div>
             <div class="holding-info">
-                <div class="holding-name">${m.ticker}</div>
+                <div class="holding-name">${m.ticker} ${m.crypto ? '<span style="font-size:10px;background:${m.color}15;color:${m.color};padding:1px 6px;border-radius:4px;margin-left:4px">CRYPTO</span>' : ''}</div>
                 <div class="holding-detail">${m.name}</div>
             </div>
             <div class="holding-right">
-                <div class="holding-value">$${m.price.toFixed(2)}</div>
-                <div class="holding-change ${m.change >= 0 ? 'up' : 'down'}">${m.change >= 0 ? '+' : ''}${m.change.toFixed(1)}%</div>
+                <div class="holding-value">${formatPrice(m)}</div>
+                <div class="holding-change ${m.change >= 0 ? 'up' : 'down'}">${m.change >= 0 ? '▲' : '▼'} ${m.change >= 0 ? '+' : ''}${m.change.toFixed(1)}%</div>
             </div>
         </div>
     `).join('');
