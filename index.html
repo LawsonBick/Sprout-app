@@ -2041,10 +2041,10 @@
                 <div class="stat-value green" id="monthlyGainValue">—</div>
                 <div class="stat-detail" id="monthlyGainDetail">Calculating…</div>
             </div>
-            <div class="stat-card">
+            <div class="stat-card" onclick="openPortfolioDetail()" style="cursor:pointer">
                 <div class="stat-label">Risk Level</div>
-                <div class="stat-value orange">Moderate</div>
-                <div class="stat-detail">Crypto exposure flagged</div>
+                <div class="stat-value orange" id="riskLevelValue">—</div>
+                <div class="stat-detail" id="riskLevelDetail">Analyzing…</div>
             </div>
         </div>
 
@@ -3206,6 +3206,7 @@ async function fetchRealTimePrices() {
         document.getElementById('aiScore').textContent = a.overall;
         document.getElementById('aiVerdict').textContent = a.verdict;
         drawAIScoreRing(a.overall);
+        updateRiskLevelCard(a);
     }
 
     const now = new Date();
@@ -5207,11 +5208,46 @@ function gradeColor(score) {
     return '#C62828';
 }
 
+function updateRiskLevelCard(a) {
+    const valueEl = document.getElementById('riskLevelValue');
+    const detailEl = document.getElementById('riskLevelDetail');
+    if (!valueEl || !detailEl) return;
+
+    let label, colorClass, reason;
+    if (a.riskScore >= 80) {
+        label = 'Low';
+        colorClass = 'green';
+    } else if (a.riskScore >= 60) {
+        label = 'Moderate';
+        colorClass = 'orange';
+    } else if (a.riskScore >= 40) {
+        label = 'Elevated';
+        colorClass = 'orange';
+    } else {
+        label = 'High';
+        colorClass = 'red';
+    }
+
+    // Build specific reason from analysis
+    if (a.cryptoPct > 25) reason = `Crypto ${a.cryptoPct.toFixed(0)}% of portfolio`;
+    else if (a.largestPct > 40) reason = `${a.largestTicker} is ${a.largestPct.toFixed(0)}% of portfolio`;
+    else if (a.bondPct === 0 && a.etfPct < 20) reason = 'No bonds or broad ETFs';
+    else if (a.numSectors < 3) reason = `Only ${a.numSectors} sector${a.numSectors === 1 ? '' : 's'}`;
+    else if (a.etfPct >= 30) reason = `${a.etfPct.toFixed(0)}% ETFs — well-diversified`;
+    else if (a.bondPct > 0) reason = `${a.bondPct.toFixed(0)}% bonds cushion swings`;
+    else reason = `Score: ${Math.round(a.riskScore)}/100`;
+
+    valueEl.textContent = label;
+    valueEl.className = 'stat-value ' + colorClass;
+    detailEl.textContent = reason;
+}
+
 function renderAIAdvisor() {
     const a = analyzePortfolio();
     document.getElementById('aiGrade').textContent = a.grade;
     document.getElementById('aiScore').textContent = a.overall;
     document.getElementById('aiVerdict').textContent = a.verdict;
+    updateRiskLevelCard(a);
 
     const metrics = [
         { label: 'Diversification', val: a.divScore },
