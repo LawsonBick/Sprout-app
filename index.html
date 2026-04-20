@@ -2038,8 +2038,8 @@
         <div class="stats-row">
             <div class="stat-card">
                 <div class="stat-label">Monthly Gain</div>
-                <div class="stat-value green">+$180.38</div>
-                <div class="stat-detail">+5.7% est. return</div>
+                <div class="stat-value green" id="monthlyGainValue">—</div>
+                <div class="stat-detail" id="monthlyGainDetail">Calculating…</div>
             </div>
             <div class="stat-card">
                 <div class="stat-label">Risk Level</div>
@@ -3212,6 +3212,65 @@ async function fetchRealTimePrices() {
     updatedEl.textContent = 'Live prices \u00B7 Updated ' + now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
 }
 
+async function fetchMonthlyGain() {
+    const valueEl = document.getElementById('monthlyGainValue');
+    const detailEl = document.getElementById('monthlyGainDetail');
+    if (!valueEl || !detailEl) return;
+
+    let gainDollars = 0;
+    let valueMonthAgo = 0;
+    let currentValue = 0;
+    let anySuccess = false;
+
+    for (const h of holdings) {
+        try {
+            let priceMonthAgo = null;
+
+            if (cryptoIds[h.ticker]) {
+                const id = cryptoIds[h.ticker];
+                const url = `https://api.coingecko.com/api/v3/coins/${id}/market_chart?vs_currency=usd&days=30`;
+                let res;
+                try {
+                    res = await fetch(url);
+                    if (!res.ok) throw new Error();
+                } catch {
+                    res = await fetch(`${YAHOO_PROXY}${encodeURIComponent(url)}`);
+                }
+                const data = await res.json();
+                if (data.prices && data.prices.length > 0) {
+                    priceMonthAgo = data.prices[0][1];
+                }
+            } else {
+                const url = `${YAHOO_PROXY}${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${h.ticker}?interval=1d&range=1mo`)}`;
+                const res = await fetch(url);
+                const data = await res.json();
+                const closes = data.chart.result[0].indicators.quote[0].close.filter(c => c !== null);
+                if (closes.length > 0) priceMonthAgo = closes[0];
+            }
+
+            if (priceMonthAgo !== null) {
+                anySuccess = true;
+                const startValue = h.shares * priceMonthAgo;
+                const nowValue = h.shares * h.price;
+                gainDollars += (nowValue - startValue);
+                valueMonthAgo += startValue;
+                currentValue += nowValue;
+            }
+        } catch (e) {
+            console.log(`Monthly gain fetch failed for ${h.ticker}:`, e);
+        }
+    }
+
+    if (!anySuccess) return;
+
+    const gainPct = valueMonthAgo > 0 ? (gainDollars / valueMonthAgo) * 100 : 0;
+    const isUp = gainDollars >= 0;
+
+    valueEl.textContent = (isUp ? '+' : '-') + '$' + Math.abs(gainDollars).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    valueEl.className = 'stat-value ' + (isUp ? 'green' : 'red');
+    detailEl.textContent = (isUp ? '+' : '') + gainPct.toFixed(2) + '% past 30 days';
+}
+
 async function fetchWeeklyMovers() {
     const tickers = [
         { ticker: 'NVDA', name: 'NVIDIA Corp.', color: '#76B900' },
@@ -3293,7 +3352,10 @@ let priceInterval = null;
 function startPriceUpdates() {
     fetchRealTimePrices();
     fetchWeeklyMovers();
+    fetchMonthlyGain();
     priceInterval = setInterval(fetchRealTimePrices, 3000);
+    // Refresh monthly gain every 5 minutes (historical data doesn't change fast)
+    setInterval(fetchMonthlyGain, 300000);
 }
 
 // ===== STOCK CHART =====
