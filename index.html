@@ -712,6 +712,70 @@
             font-size: 13px;
             font-weight: 700;
         }
+        .xp-level-number {
+            background: rgba(255,255,255,0.18);
+            backdrop-filter: blur(10px);
+            padding: 6px 14px;
+            border-radius: 14px;
+            text-align: center;
+            min-width: 60px;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+        .xp-level-num-small { font-size: 9px; font-weight: 700; letter-spacing: 1px; opacity: 0.85; }
+        .xp-level-num-big { font-family: 'DM Serif Display', serif; font-size: 28px; line-height: 1; }
+
+        /* ===== LEADERBOARD ===== */
+        .lb-card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 16px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            margin-bottom: 16px;
+        }
+        .lb-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .lb-title { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+        .lb-reset { font-size: 11px; color: var(--text-muted); }
+        .lb-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 8px;
+            border-radius: 10px;
+            transition: background 0.15s;
+        }
+        .lb-row.me { background: rgba(45,138,78,0.08); border: 1px solid var(--green-pale); }
+        .lb-rank {
+            width: 28px; height: 28px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; font-weight: 700;
+            background: var(--bg-page); color: var(--text-secondary);
+            flex-shrink: 0;
+        }
+        .lb-rank.gold { background: linear-gradient(135deg, #FFD700, #FFA000); color: white; }
+        .lb-rank.silver { background: linear-gradient(135deg, #C0C0C0, #9E9E9E); color: white; }
+        .lb-rank.bronze { background: linear-gradient(135deg, #CD7F32, #8D5524); color: white; }
+        .lb-avatar {
+            width: 36px; height: 36px; border-radius: 50%;
+            background: var(--bg-page);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; flex-shrink: 0;
+        }
+        .lb-info { flex: 1; min-width: 0; overflow: hidden; }
+        .lb-name { font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 6px; }
+        .lb-name-me { font-size: 10px; background: var(--green-dark); color: white; padding: 1px 6px; border-radius: 4px; font-weight: 700; }
+        .lb-meta { font-size: 11px; color: var(--text-muted); margin-top: 1px; display: flex; gap: 8px; }
+        .lb-xp { font-weight: 700; font-size: 14px; color: var(--green-dark); }
+        .lb-xp-label { font-size: 10px; color: var(--text-muted); text-align: right; }
+        .lb-right { text-align: right; }
+        .lb-divider { height: 1px; background: var(--border); margin: 8px 0; }
+        .lb-you-summary {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 8px 12px; background: var(--bg-page); border-radius: 10px; margin-top: 10px;
+            font-size: 12px;
+        }
+        .lb-you-label { color: var(--text-secondary); }
+        .lb-you-rank { font-weight: 700; color: var(--green-dark); font-size: 14px; }
         .xp-bar { height: 8px; background: rgba(255,255,255,0.25); border-radius: 4px; overflow: hidden; position: relative; z-index: 1; }
         .xp-bar-fill { height: 100%; background: white; border-radius: 4px; transition: width 0.8s ease; box-shadow: 0 0 8px rgba(255,255,255,0.5); }
         .xp-bar-label { font-size: 11px; opacity: 0.9; margin-top: 6px; position: relative; z-index: 1; }
@@ -2200,6 +2264,14 @@
 
             <div class="section-title-row">
                 <div>
+                    <div class="section-title">🏆 Daily Leaderboard</div>
+                    <div class="section-sub">Top learners earning XP today</div>
+                </div>
+            </div>
+            <div id="leaderboardCard"></div>
+
+            <div class="section-title-row">
+                <div>
                     <div class="section-title">📚 In-Depth Lessons</div>
                     <div class="section-sub">Full reads with practical examples</div>
                 </div>
@@ -2542,6 +2614,22 @@ let movers = [
 let userXP = 340;
 let completedQuizIds = ['stocks-basics'];
 let dayStreak = 3;
+let userXpToday = 120;
+
+const leaderboardUsers = [
+    { name: 'Lawson B.', emoji: '🦊', xpToday: 420, streak: 12, level: 8 },
+    { name: 'Priya M.', emoji: '👩‍💼', xpToday: 365, streak: 18, level: 11 },
+    { name: 'Eric C.', emoji: '🧑‍💻', xpToday: 310, streak: 7, level: 6 },
+    { name: 'Olivia L.', emoji: '👩‍🎓', xpToday: 275, streak: 24, level: 9 },
+    { name: 'Jett W.', emoji: '🧔', xpToday: 240, streak: 4, level: 5 },
+    { name: 'Anaya M.', emoji: '👩', xpToday: 195, streak: 9, level: 7 },
+    { name: 'Ryan L.', emoji: '👨‍💻', xpToday: 170, streak: 15, level: 10 },
+    { name: 'Aralyn V.', emoji: '👩‍🔬', xpToday: 145, streak: 6, level: 4 },
+    { name: 'Sarah K.', emoji: '👩‍💼', xpToday: 100, streak: 2, level: 3 },
+    { name: 'Marcus T.', emoji: '👨‍🎓', xpToday: 85, streak: 1, level: 2 },
+    { name: 'Hannah J.', emoji: '🙋‍♀️', xpToday: 60, streak: 3, level: 3 },
+    { name: 'Zara K.', emoji: '👩‍🚀', xpToday: 45, streak: 1, level: 2 },
+];
 
 const quizLessons = [
     {
@@ -3080,6 +3168,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderMovers();
     renderXPBanner();
     renderQuizLessons();
+    renderLeaderboard();
     renderLessons();
     renderCommunity();
     renderProfile();
@@ -4433,29 +4522,129 @@ function getUserLevel(xp) {
     return { level, next };
 }
 
+function getNumericLevel(xp) {
+    // Level curve — first levels come fast, higher levels require more XP
+    // L1: 0, L2: 100, L3: 250, L4: 450, L5: 700, L6: 1000, L7: 1350, L8: 1750...
+    let level = 1;
+    let threshold = 0;
+    let step = 100;
+    while (xp >= threshold + step) {
+        threshold += step;
+        step += 50;
+        level++;
+    }
+    const nextThreshold = threshold + step;
+    return { level, threshold, nextThreshold, progress: xp - threshold, progressMax: step };
+}
+
 function renderXPBanner() {
     const el = document.getElementById('xpBanner');
     if (!el) return;
-    const { level, next } = getUserLevel(userXP);
-    const progressMin = level.min;
-    const progressMax = next ? next.min : level.min + 1000;
-    const pct = Math.min(100, ((userXP - progressMin) / (progressMax - progressMin)) * 100);
-    const toNext = next ? next.min - userXP : 0;
+    const { level: namedLevel, next } = getUserLevel(userXP);
+    const num = getNumericLevel(userXP);
+    const pct = Math.min(100, (num.progress / num.progressMax) * 100);
+    const toNext = num.nextThreshold - userXP;
 
     el.innerHTML = `
         <div class="xp-banner">
             <div class="xp-row">
                 <div>
-                    <div class="xp-label">Total XP</div>
-                    <div class="xp-points">${level.emoji} ${userXP.toLocaleString()}</div>
+                    <div class="xp-label">Level ${num.level} · ${namedLevel.name}</div>
+                    <div class="xp-points">${namedLevel.emoji} ${userXP.toLocaleString()} <span style="font-size:14px;opacity:0.7;">XP</span></div>
                 </div>
-                <div class="xp-level-badge">${level.name}</div>
+                <div class="xp-level-number">
+                    <div class="xp-level-num-small">LVL</div>
+                    <div class="xp-level-num-big">${num.level}</div>
+                </div>
             </div>
             <div class="xp-bar"><div class="xp-bar-fill" style="width:${pct}%"></div></div>
-            <div class="xp-bar-label">${next ? `${toNext} XP to ${next.emoji} ${next.name}` : 'Max level reached!'}</div>
+            <div class="xp-bar-label">${toNext} XP to Level ${num.level + 1}${next ? ` (${next.emoji} ${next.name})` : ''}</div>
             <div class="xp-stats">
                 <div class="xp-stat">🔥 ${dayStreak}-day streak</div>
                 <div class="xp-stat">✓ ${completedQuizIds.length} quiz${completedQuizIds.length !== 1 ? 'zes' : ''} done</div>
+                <div class="xp-stat">⭐ Rank #${getUserRank()}</div>
+            </div>
+        </div>
+    `;
+}
+
+function getLeaderboardSorted() {
+    const num = getNumericLevel(userXP);
+    const me = { name: 'Mark (You)', emoji: '😀', xpToday: userXpToday, streak: dayStreak, level: num.level, isMe: true };
+    return [...leaderboardUsers, me].sort((a, b) => b.xpToday - a.xpToday);
+}
+
+function getUserRank() {
+    const sorted = getLeaderboardSorted();
+    return sorted.findIndex(u => u.isMe) + 1;
+}
+
+function getTimeUntilMidnight() {
+    const now = new Date();
+    const midnight = new Date();
+    midnight.setHours(24, 0, 0, 0);
+    const diff = midnight - now;
+    const h = Math.floor(diff / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    return `${h}h ${m}m`;
+}
+
+function renderLeaderboard() {
+    const container = document.getElementById('leaderboardCard');
+    if (!container) return;
+    const sorted = getLeaderboardSorted();
+    const topTen = sorted.slice(0, 10);
+    const myRank = sorted.findIndex(u => u.isMe) + 1;
+    const myInTop = myRank <= 10;
+
+    container.innerHTML = `
+        <div class="lb-card">
+            <div class="lb-header">
+                <div class="lb-title">🏆 Today's Top Learners</div>
+                <div class="lb-reset">Resets in ${getTimeUntilMidnight()}</div>
+            </div>
+            ${topTen.map((u, i) => {
+                const rank = i + 1;
+                const rankClass = rank === 1 ? 'gold' : rank === 2 ? 'silver' : rank === 3 ? 'bronze' : '';
+                return `
+                    <div class="lb-row ${u.isMe ? 'me' : ''}">
+                        <div class="lb-rank ${rankClass}">${rank}</div>
+                        <div class="lb-avatar">${u.emoji}</div>
+                        <div class="lb-info">
+                            <div class="lb-name">${u.name}${u.isMe ? '<span class="lb-name-me">YOU</span>' : ''}</div>
+                            <div class="lb-meta">
+                                <span>Lvl ${u.level}</span>
+                                <span>🔥 ${u.streak}d</span>
+                            </div>
+                        </div>
+                        <div class="lb-right">
+                            <div class="lb-xp">+${u.xpToday}</div>
+                            <div class="lb-xp-label">XP today</div>
+                        </div>
+                    </div>
+                `;
+            }).join('')}
+            ${!myInTop ? `
+                <div class="lb-divider"></div>
+                <div class="lb-row me">
+                    <div class="lb-rank">${myRank}</div>
+                    <div class="lb-avatar">😀</div>
+                    <div class="lb-info">
+                        <div class="lb-name">Mark (You)<span class="lb-name-me">YOU</span></div>
+                        <div class="lb-meta">
+                            <span>Lvl ${getNumericLevel(userXP).level}</span>
+                            <span>🔥 ${dayStreak}d</span>
+                        </div>
+                    </div>
+                    <div class="lb-right">
+                        <div class="lb-xp">+${userXpToday}</div>
+                        <div class="lb-xp-label">XP today</div>
+                    </div>
+                </div>
+            ` : ''}
+            <div class="lb-you-summary">
+                <span class="lb-you-label">Your rank today</span>
+                <span class="lb-you-rank">#${myRank} of ${sorted.length}</span>
             </div>
         </div>
     `;
@@ -4578,6 +4767,7 @@ function answerQuiz(selected) {
 
     // Award partial XP immediately
     userXP += earned;
+    userXpToday += earned;
     feedbackEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
@@ -4599,6 +4789,7 @@ function finishQuiz() {
         bonusXP = 25;
         if (score === total) bonusXP += 50; // perfect score bonus
         userXP += bonusXP;
+        userXpToday += bonusXP;
         completedQuizIds.push(quiz.id);
     }
 
@@ -4638,6 +4829,7 @@ function finishQuiz() {
     `;
     renderXPBanner();
     renderQuizLessons();
+    renderLeaderboard();
 }
 
 function getNextQuizId() {
