@@ -976,6 +976,60 @@
             background: rgba(255,255,255,0.15);
             color: white;
         }
+        .ai-top-row { display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 1; margin-bottom: 14px; }
+        .ai-grade-row { display: flex; align-items: center; gap: 12px; margin-top: 8px; }
+        .ai-grade {
+            width: 52px; height: 52px; border-radius: 14px;
+            background: rgba(255,255,255,0.18); backdrop-filter: blur(6px);
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'DM Serif Display', serif; font-size: 28px; font-weight: 700;
+        }
+        .ai-score-line { font-family: 'DM Serif Display', serif; font-size: 22px; line-height: 1; }
+        .ai-score-max { font-size: 13px; opacity: 0.7; margin-left: 2px; }
+        .ai-verdict { font-size: 12px; opacity: 0.85; margin-top: 2px; }
+        .ai-ring-wrap { position: relative; z-index: 1; }
+        .ai-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; position: relative; z-index: 1; }
+        .ai-metric { background: rgba(255,255,255,0.1); border-radius: 10px; padding: 8px 10px; }
+        .ai-metric-top { display: flex; justify-content: space-between; align-items: center; font-size: 11px; }
+        .ai-metric-label { opacity: 0.85; }
+        .ai-metric-val { font-weight: 700; font-size: 11px; }
+        .ai-metric-bar { height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; margin-top: 6px; overflow: hidden; }
+        .ai-metric-bar-fill { height: 100%; background: white; border-radius: 2px; transition: width 0.6s ease; }
+        .ai-insight-block { background: rgba(255,255,255,0.1); border-radius: 12px; padding: 12px 14px; margin-bottom: 4px; position: relative; z-index: 1; }
+        .ai-insight-label { font-size: 11px; opacity: 0.85; margin-bottom: 4px; font-weight: 600; }
+
+        /* Portfolio detail modal */
+        .pd-header { text-align: center; margin-bottom: 16px; }
+        .pd-big-grade {
+            width: 88px; height: 88px; border-radius: 24px;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-family: 'DM Serif Display', serif; font-size: 46px; font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .pd-title { font-family: 'DM Serif Display', serif; font-size: 24px; }
+        .pd-subtitle { font-size: 13px; color: var(--text-secondary); margin-bottom: 4px; }
+        .pd-section-title { font-size: 14px; font-weight: 700; margin: 18px 0 10px; }
+        .pd-metric-full { background: var(--bg-page); border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; }
+        .pd-metric-head { display: flex; justify-content: space-between; margin-bottom: 6px; }
+        .pd-metric-name { font-size: 13px; font-weight: 600; }
+        .pd-metric-score { font-size: 13px; font-weight: 700; }
+        .pd-metric-bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+        .pd-metric-bar-fill { height: 100%; border-radius: 3px; transition: width 0.6s; }
+        .pd-metric-note { font-size: 12px; color: var(--text-secondary); margin-top: 6px; line-height: 1.4; }
+        .pd-rec {
+            background: var(--bg-page); border-radius: 12px; padding: 12px 14px;
+            margin-bottom: 8px; display: flex; gap: 10px; align-items: flex-start;
+        }
+        .pd-rec-icon { font-size: 18px; margin-top: 1px; }
+        .pd-rec-text { font-size: 13px; line-height: 1.45; color: var(--text-primary); flex: 1; }
+        .pd-rec.warn { background: rgba(229,57,53,0.06); border-left: 3px solid #E53935; }
+        .pd-rec.good { background: rgba(45,138,78,0.08); border-left: 3px solid var(--green-dark); }
+        .pd-rec.info { background: rgba(21,101,192,0.06); border-left: 3px solid #1565C0; }
+        .pd-allocation { display: flex; height: 14px; border-radius: 8px; overflow: hidden; margin-bottom: 10px; }
+        .pd-alloc-seg { transition: flex 0.5s; }
+        .pd-alloc-legend { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 12px; }
+        .pd-alloc-legend-item { display: flex; align-items: center; gap: 6px; }
+        .pd-alloc-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
 
         /* ===== WATCHLIST ===== */
         .watchlist-item {
@@ -1944,13 +1998,39 @@
         </div>
 
         <!-- AI Advisor -->
-        <div class="ai-card">
-            <div class="ai-label">✨ AI Advisor</div>
-            <div class="ai-title">Portfolio Health Check</div>
-            <div class="ai-text" id="aiAdvice">Your portfolio is up 1.28% today. Consider diversifying — 45% of your holdings are in tech. Adding bonds or REITs could reduce volatility.</div>
+        <div class="ai-card" id="aiAdvisorCard">
+            <div class="ai-label">✨ AI Portfolio Advisor</div>
+            <div class="ai-top-row">
+                <div>
+                    <div class="ai-title">Portfolio Health Check</div>
+                    <div class="ai-grade-row">
+                        <div class="ai-grade" id="aiGrade">—</div>
+                        <div>
+                            <div class="ai-score-line"><span id="aiScore">—</span><span class="ai-score-max">/100</span></div>
+                            <div class="ai-verdict" id="aiVerdict">Analyzing…</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="ai-ring-wrap">
+                    <canvas id="aiScoreRing" width="80" height="80"></canvas>
+                </div>
+            </div>
+            <div class="ai-metrics" id="aiMetrics"></div>
+            <div class="ai-insight-block">
+                <div class="ai-insight-label">💡 Today's Insight</div>
+                <div class="ai-text" id="aiAdvice">Analyzing your portfolio…</div>
+            </div>
             <div class="ai-actions">
                 <button class="ai-btn ai-btn-primary" onclick="refreshAdvice()">New Insight</button>
-                <button class="ai-btn ai-btn-secondary" onclick="switchPage('learn')">Learn More</button>
+                <button class="ai-btn ai-btn-secondary" onclick="openPortfolioDetail()">Full Report</button>
+            </div>
+        </div>
+
+        <!-- Portfolio Detail Modal -->
+        <div class="modal-overlay" id="portfolioDetailModal">
+            <div class="modal">
+                <div class="modal-handle"></div>
+                <div id="portfolioDetailBody"></div>
             </div>
         </div>
 
@@ -2993,6 +3073,7 @@ let currentPage = 'dashboard';
 document.addEventListener('DOMContentLoaded', () => {
     updateGreeting();
     renderHoldings();
+    renderAIAdvisor();
     renderGoals();
     runCompoundCalc();
     renderNews();
@@ -3117,6 +3198,15 @@ async function fetchRealTimePrices() {
     updatePortfolioValue();
     renderHoldings();
     renderMovers();
+    // Refresh advisor metrics but keep current insight text (don't shuffle on every tick)
+    const a = analyzePortfolio();
+    const gradeEl = document.getElementById('aiGrade');
+    if (gradeEl) {
+        gradeEl.textContent = a.grade;
+        document.getElementById('aiScore').textContent = a.overall;
+        document.getElementById('aiVerdict').textContent = a.verdict;
+        drawAIScoreRing(a.overall);
+    }
 
     const now = new Date();
     updatedEl.textContent = 'Live prices \u00B7 Updated ' + now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
@@ -4952,19 +5042,250 @@ function viewSearchProfileByHandle(handle) {
 }
 
 // ===== AI ADVISOR =====
-function refreshAdvice() {
-    const current = document.getElementById('aiAdvice').textContent;
-    let next;
-    do {
-        next = aiInsights[Math.floor(Math.random() * aiInsights.length)];
-    } while (next === current);
+// ===== AI PORTFOLIO ANALYSIS =====
+function analyzePortfolio() {
+    const total = holdings.reduce((s, h) => s + h.shares * h.price, 0) || 1;
+    const sectors = {};
+    let largestPct = 0;
+    let largestTicker = '';
+    let cryptoPct = 0;
+    let etfPct = 0;
+    let bondPct = 0;
+    let stockPct = 0;
+    let healthcarePct = 0;
 
-    const el = document.getElementById('aiAdvice');
-    el.style.opacity = 0;
-    setTimeout(() => {
-        el.textContent = next;
-        el.style.opacity = 1;
-    }, 200);
+    holdings.forEach(h => {
+        const val = h.shares * h.price;
+        const pct = (val / total) * 100;
+        if (pct > largestPct) { largestPct = pct; largestTicker = h.ticker; }
+        const sec = (h.sector || 'Other');
+        sectors[sec] = (sectors[sec] || 0) + pct;
+        if (sec === 'Crypto') cryptoPct += pct;
+        else if (sec === 'ETF') etfPct += pct;
+        else if (sec === 'Bond') bondPct += pct;
+        else if (sec === 'Healthcare') healthcarePct += pct;
+        else stockPct += pct;
+    });
+
+    const numSectors = Object.keys(sectors).length;
+    const numHoldings = holdings.length;
+
+    // --- Metric 1: Diversification (0-100) ---
+    // Penalize high concentration + few sectors + few holdings
+    let divScore = 100;
+    if (largestPct > 40) divScore -= (largestPct - 40) * 1.5;
+    if (numSectors < 3) divScore -= (3 - numSectors) * 15;
+    if (numHoldings < 5) divScore -= (5 - numHoldings) * 8;
+    divScore = Math.max(0, Math.min(100, divScore));
+
+    // --- Metric 2: Risk Balance (0-100) ---
+    // Good: mix of stable ETFs + stocks. Bad: all crypto or all one stock
+    let riskScore = 70;
+    if (cryptoPct > 30) riskScore -= (cryptoPct - 30) * 1.2;
+    if (etfPct >= 20 && etfPct <= 60) riskScore += 15;
+    if (bondPct > 0) riskScore += 10;
+    if (largestPct > 50) riskScore -= 20;
+    riskScore = Math.max(0, Math.min(100, riskScore));
+
+    // --- Metric 3: Allocation Balance (0-100) ---
+    // How well-spread across asset classes
+    const classes = [stockPct, etfPct, bondPct, cryptoPct, healthcarePct].filter(p => p > 0);
+    let allocScore = 50 + classes.length * 10;
+    if (cryptoPct > 40) allocScore -= 20;
+    if (etfPct === 0) allocScore -= 10;
+    allocScore = Math.max(0, Math.min(100, allocScore));
+
+    // --- Metric 4: Stability (0-100) ---
+    // Based on daily change volatility across holdings (lower is more stable)
+    const avgAbsChange = holdings.length
+        ? holdings.reduce((s, h) => s + Math.abs(h.change || 0), 0) / holdings.length
+        : 0;
+    let stabilityScore = 100 - (avgAbsChange * 10);
+    if (etfPct >= 30) stabilityScore += 10;
+    if (bondPct > 0) stabilityScore += 10;
+    stabilityScore = Math.max(0, Math.min(100, stabilityScore));
+
+    // --- Overall score ---
+    const overall = Math.round(divScore * 0.35 + riskScore * 0.25 + allocScore * 0.2 + stabilityScore * 0.2);
+
+    const grade = overall >= 93 ? 'A+' : overall >= 87 ? 'A' : overall >= 80 ? 'A-' : overall >= 73 ? 'B+' : overall >= 67 ? 'B' : overall >= 60 ? 'B-' : overall >= 53 ? 'C+' : overall >= 45 ? 'C' : overall >= 35 ? 'D' : 'F';
+    const verdict = overall >= 85 ? 'Strong portfolio'
+        : overall >= 70 ? 'Solid foundation'
+        : overall >= 55 ? 'Room to improve'
+        : overall >= 40 ? 'Needs attention'
+        : 'Rebalance recommended';
+
+    // Build recommendations
+    const recs = [];
+    if (cryptoPct > 25) recs.push({ type: 'warn', icon: '⚠️', text: `Crypto is ${cryptoPct.toFixed(0)}% of your portfolio. Consider capping it below 10-15% for stability — crypto can swing 20%+ in a single day.` });
+    if (largestPct > 35) recs.push({ type: 'warn', icon: '📊', text: `${largestTicker} makes up ${largestPct.toFixed(0)}% of your portfolio. If it drops, you feel the hit hard. Try spreading holdings so no single position exceeds 25-30%.` });
+    if (bondPct === 0) recs.push({ type: 'info', icon: '🛡️', text: 'Your portfolio has no bond exposure. Even 10-20% in a bond ETF (e.g. BND) cushions downturns and smooths returns.' });
+    if (numSectors < 3) recs.push({ type: 'info', icon: '🧩', text: `You're only in ${numSectors} sector${numSectors === 1 ? '' : 's'}. Adding healthcare, consumer staples, or international exposure lowers risk.` });
+    if (etfPct >= 20 && etfPct <= 60) recs.push({ type: 'good', icon: '✅', text: `Your ETF allocation (${etfPct.toFixed(0)}%) gives you broad diversification automatically — great core holding.` });
+    if (overall >= 80 && recs.filter(r => r.type === 'good').length === 0) recs.push({ type: 'good', icon: '🎯', text: 'Your portfolio is well-balanced across sectors and risk levels. Keep dollar-cost averaging and stay the course.' });
+    if (numHoldings < 4) recs.push({ type: 'info', icon: '➕', text: `You have ${numHoldings} position${numHoldings === 1 ? '' : 's'}. Most experts recommend 10-15 holdings across asset classes for proper diversification.` });
+
+    // Build dynamic insight text
+    const insightPool = [
+        `Your portfolio scores ${overall}/100 — ${verdict.toLowerCase()}. ${recs[0]?.text || 'Keep contributing consistently.'}`,
+        `Diversification grade: ${divScore >= 80 ? 'strong' : divScore >= 60 ? 'decent' : 'weak'}. ${largestTicker} is your biggest position at ${largestPct.toFixed(0)}%.`,
+        `You're spread across ${numSectors} sector${numSectors === 1 ? '' : 's'} with ${numHoldings} holding${numHoldings === 1 ? '' : 's'}. ${numSectors < 3 ? 'Add variety to reduce single-sector risk.' : 'A solid mix — keep it balanced.'}`,
+        cryptoPct > 0 ? `Crypto is ${cryptoPct.toFixed(0)}% of your portfolio. ${cryptoPct > 20 ? 'That\'s on the high side — crypto is 3-5x more volatile than stocks.' : 'A small crypto allocation can boost returns without wrecking stability.'}` : 'You have no crypto exposure — that\'s fine. Crypto isn\'t required for a great portfolio.',
+        bondPct === 0 ? 'Adding 10-20% in bonds (like BND or AGG) would reduce your portfolio\'s swings by ~30%.' : `Your ${bondPct.toFixed(0)}% bond allocation is doing its job — stabilizing returns during stock pullbacks.`,
+        `Time in the market beats timing the market. Your current setup is built for the long run — don\'t panic-sell on dips.`,
+    ];
+
+    return { overall, grade, verdict, divScore, riskScore, allocScore, stabilityScore, recs, insightPool, largestTicker, largestPct, cryptoPct, etfPct, bondPct, stockPct, healthcarePct, numHoldings, numSectors };
+}
+
+function gradeColor(score) {
+    if (score >= 80) return '#2E7D32';
+    if (score >= 65) return '#558B2F';
+    if (score >= 50) return '#F57C00';
+    return '#C62828';
+}
+
+function renderAIAdvisor() {
+    const a = analyzePortfolio();
+    document.getElementById('aiGrade').textContent = a.grade;
+    document.getElementById('aiScore').textContent = a.overall;
+    document.getElementById('aiVerdict').textContent = a.verdict;
+
+    const metrics = [
+        { label: 'Diversification', val: a.divScore },
+        { label: 'Risk Balance', val: a.riskScore },
+        { label: 'Allocation', val: a.allocScore },
+        { label: 'Stability', val: a.stabilityScore },
+    ];
+    document.getElementById('aiMetrics').innerHTML = metrics.map(m => `
+        <div class="ai-metric">
+            <div class="ai-metric-top">
+                <span class="ai-metric-label">${m.label}</span>
+                <span class="ai-metric-val">${Math.round(m.val)}</span>
+            </div>
+            <div class="ai-metric-bar"><div class="ai-metric-bar-fill" style="width:${m.val}%"></div></div>
+        </div>
+    `).join('');
+
+    // Insight
+    const pool = a.insightPool;
+    const current = document.getElementById('aiAdvice').textContent;
+    let next = pool[0];
+    if (!current || current === 'Analyzing your portfolio…') {
+        next = pool[0];
+    } else {
+        let attempts = 0;
+        do {
+            next = pool[Math.floor(Math.random() * pool.length)];
+            attempts++;
+        } while (next === current && attempts < 5);
+    }
+    document.getElementById('aiAdvice').textContent = next;
+
+    drawAIScoreRing(a.overall);
+}
+
+function drawAIScoreRing(score) {
+    const canvas = document.getElementById('aiScoreRing');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = 80 * dpr;
+    canvas.height = 80 * dpr;
+    canvas.style.width = '80px';
+    canvas.style.height = '80px';
+    ctx.scale(dpr, dpr);
+    const cx = 40, cy = 40, r = 32, lw = 7;
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+    ctx.lineWidth = lw;
+    ctx.lineCap = 'round';
+    ctx.stroke();
+
+    const endAngle = -Math.PI / 2 + (Math.PI * 2 * Math.min(score, 100) / 100);
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, -Math.PI / 2, endAngle);
+    ctx.strokeStyle = 'white';
+    ctx.lineWidth = lw;
+    ctx.lineCap = 'round';
+    ctx.stroke();
+
+    ctx.fillStyle = 'white';
+    ctx.font = 'bold 18px "DM Sans", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(score, cx, cy);
+}
+
+function refreshAdvice() {
+    renderAIAdvisor();
+}
+
+function openPortfolioDetail() {
+    const a = analyzePortfolio();
+    const body = document.getElementById('portfolioDetailBody');
+
+    const metrics = [
+        { label: 'Diversification', val: a.divScore, note: a.divScore >= 80 ? 'Well-spread across holdings and sectors.' : a.divScore >= 60 ? 'Decent spread but could add more variety.' : 'Too concentrated. Add more assets across sectors.' },
+        { label: 'Risk Balance', val: a.riskScore, note: a.riskScore >= 80 ? 'Healthy mix of growth and stability.' : a.riskScore >= 60 ? 'Balanced but leans one direction.' : 'High-risk tilt. Consider adding ETFs or bonds.' },
+        { label: 'Allocation', val: a.allocScore, note: a.allocScore >= 80 ? 'Strong spread across asset classes.' : a.allocScore >= 60 ? 'Reasonable allocation. Could add a bond or international slice.' : 'Allocation is too heavy in one area.' },
+        { label: 'Stability', val: a.stabilityScore, note: a.stabilityScore >= 80 ? 'Low day-to-day swings. Good foundation.' : a.stabilityScore >= 60 ? 'Some volatility, but manageable.' : 'High volatility. Expect large daily moves.' },
+    ];
+
+    // Allocation bar
+    const allocSegs = [
+        { label: 'Stocks', pct: a.stockPct + a.healthcarePct, color: '#1976D2' },
+        { label: 'ETFs', pct: a.etfPct, color: '#2E7D32' },
+        { label: 'Bonds', pct: a.bondPct, color: '#6A1B9A' },
+        { label: 'Crypto', pct: a.cryptoPct, color: '#F7931A' },
+    ].filter(s => s.pct > 0);
+
+    body.innerHTML = `
+        <div class="pd-header">
+            <div class="pd-big-grade" style="background:${gradeColor(a.overall)}20; color:${gradeColor(a.overall)}">${a.grade}</div>
+            <div class="pd-title">${a.overall}/100 — ${a.verdict}</div>
+            <div class="pd-subtitle">Full portfolio health breakdown</div>
+        </div>
+
+        <div class="pd-section-title">📊 Asset Allocation</div>
+        <div class="pd-allocation">
+            ${allocSegs.map(s => `<div class="pd-alloc-seg" style="flex:${s.pct}; background:${s.color}"></div>`).join('')}
+        </div>
+        <div class="pd-alloc-legend">
+            ${allocSegs.map(s => `<div class="pd-alloc-legend-item"><span class="pd-alloc-dot" style="background:${s.color}"></span>${s.label}: ${s.pct.toFixed(0)}%</div>`).join('')}
+        </div>
+
+        <div class="pd-section-title">🎯 Health Metrics</div>
+        ${metrics.map(m => `
+            <div class="pd-metric-full">
+                <div class="pd-metric-head">
+                    <span class="pd-metric-name">${m.label}</span>
+                    <span class="pd-metric-score" style="color:${gradeColor(m.val)}">${Math.round(m.val)}/100</span>
+                </div>
+                <div class="pd-metric-bar"><div class="pd-metric-bar-fill" style="width:${m.val}%; background:${gradeColor(m.val)}"></div></div>
+                <div class="pd-metric-note">${m.note}</div>
+            </div>
+        `).join('')}
+
+        <div class="pd-section-title">💡 Recommendations</div>
+        ${a.recs.length === 0
+            ? '<div class="pd-rec good"><div class="pd-rec-icon">✨</div><div class="pd-rec-text">Your portfolio looks great as-is. Keep contributing consistently.</div></div>'
+            : a.recs.map(r => `
+                <div class="pd-rec ${r.type}">
+                    <div class="pd-rec-icon">${r.icon}</div>
+                    <div class="pd-rec-text">${r.text}</div>
+                </div>
+            `).join('')
+        }
+
+        <div style="font-size:11px; color:var(--text-muted); text-align:center; margin-top:16px; line-height:1.5;">
+            This is an automated analysis for educational purposes, not professional financial advice.
+        </div>
+    `;
+
+    document.getElementById('portfolioDetailModal').classList.add('show');
 }
 
 // ===== MODALS =====
