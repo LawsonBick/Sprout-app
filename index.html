@@ -495,6 +495,66 @@
         .goal-milestone-line { flex: 1; height: 1px; background: var(--border); }
         .goal-on-track { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 8px; }
 
+        /* ===== COMPOUND INTEREST CALCULATOR ===== */
+        .calc-card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 18px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            margin-bottom: 20px;
+        }
+        .calc-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+        .calc-input-group {}
+        .calc-label { display: block; font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 4px; }
+        .calc-input-wrap {
+            display: flex; align-items: center; background: var(--bg-page); border-radius: 10px; padding: 0 10px; border: 1px solid var(--border);
+        }
+        .calc-input-wrap:focus-within { border-color: var(--green); }
+        .calc-prefix, .calc-suffix { font-size: 14px; color: var(--text-secondary); font-weight: 600; }
+        .calc-input {
+            flex: 1; border: none; background: transparent; padding: 10px 6px; font-size: 15px; font-weight: 600; outline: none;
+            font-family: inherit; color: var(--text-primary); width: 100%; min-width: 0;
+        }
+        .calc-input::-webkit-outer-spin-button, .calc-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .calc-input[type=number] { -moz-appearance: textfield; }
+
+        .calc-result {
+            background: var(--green-gradient);
+            border-radius: 14px;
+            padding: 18px;
+            text-align: center;
+            color: white;
+            margin-bottom: 14px;
+        }
+        .calc-result-label { font-size: 12px; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+        .calc-result-val { font-family: 'DM Serif Display', serif; font-size: 34px; line-height: 1.1; }
+        .calc-result-sub { font-size: 13px; opacity: 0.9; margin-top: 4px; }
+
+        .calc-breakdown { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+        .calc-breakdown-item { background: var(--bg-page); border-radius: 10px; padding: 12px; }
+        .calc-breakdown-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 2px; }
+        .calc-breakdown-val { font-size: 16px; font-weight: 700; }
+        .calc-breakdown-pct { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+
+        .calc-canvas-wrap { width: 100%; height: 180px; margin-bottom: 8px; }
+        .calc-canvas-wrap canvas { width: 100%; height: 100%; }
+        .calc-chart-legend { display: flex; gap: 16px; justify-content: center; font-size: 11px; color: var(--text-secondary); margin-bottom: 16px; }
+        .calc-legend-item { display: flex; align-items: center; gap: 6px; }
+        .calc-legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+        .calc-preset-label { font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 6px; }
+        .calc-presets { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+        .calc-preset {
+            background: var(--bg-page); border: 1px solid var(--border); border-radius: 10px; padding: 10px;
+            font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; color: var(--text-primary);
+            transition: all 0.15s;
+        }
+        .calc-preset:hover { border-color: var(--green); background: var(--green-pale); }
+        .calc-preset:active { transform: scale(0.98); }
+
+        .calc-tip { background: rgba(45,138,78,0.08); border-left: 3px solid var(--green); border-radius: 8px; padding: 10px 12px; font-size: 12px; color: var(--text-secondary); line-height: 1.45; }
+
         /* ===== NEWS ===== */
         .news-item {
             display: flex;
@@ -1923,6 +1983,73 @@
         <div id="goalsSummary"></div>
         <div id="goalsList"></div>
         <button class="add-btn" onclick="openAddGoal()">+ Add New Goal</button>
+
+        <div class="section-title-row" style="margin-top: 24px;">
+            <div>
+                <div class="section-title">🧮 Compound Interest Calculator</div>
+                <div class="section-sub">See how your money can grow over time</div>
+            </div>
+        </div>
+        <div class="calc-card">
+            <div class="calc-inputs">
+                <div class="calc-input-group">
+                    <label class="calc-label">Starting Amount</label>
+                    <div class="calc-input-wrap">
+                        <span class="calc-prefix">$</span>
+                        <input class="calc-input" id="calcStart" type="number" value="1000" step="100" oninput="runCompoundCalc()">
+                    </div>
+                </div>
+                <div class="calc-input-group">
+                    <label class="calc-label">Monthly Contribution</label>
+                    <div class="calc-input-wrap">
+                        <span class="calc-prefix">$</span>
+                        <input class="calc-input" id="calcMonthly" type="number" value="200" step="50" oninput="runCompoundCalc()">
+                    </div>
+                </div>
+                <div class="calc-input-group">
+                    <label class="calc-label">Annual Return Rate</label>
+                    <div class="calc-input-wrap">
+                        <input class="calc-input" id="calcRate" type="number" value="8" step="0.5" oninput="runCompoundCalc()">
+                        <span class="calc-suffix">%</span>
+                    </div>
+                </div>
+                <div class="calc-input-group">
+                    <label class="calc-label">Years</label>
+                    <div class="calc-input-wrap">
+                        <input class="calc-input" id="calcYears" type="number" value="20" step="1" min="1" max="60" oninput="runCompoundCalc()">
+                    </div>
+                </div>
+            </div>
+
+            <div class="calc-result">
+                <div class="calc-result-label">Projected Final Value</div>
+                <div class="calc-result-val" id="calcFinal">$0</div>
+                <div class="calc-result-sub" id="calcMultiplier"></div>
+            </div>
+
+            <div class="calc-breakdown" id="calcBreakdown"></div>
+
+            <div class="calc-canvas-wrap">
+                <canvas id="calcChart" width="600" height="180"></canvas>
+            </div>
+
+            <div class="calc-chart-legend">
+                <div class="calc-legend-item"><span class="calc-legend-dot" style="background:#4CAF50"></span> Total Value</div>
+                <div class="calc-legend-item"><span class="calc-legend-dot" style="background:#1a5c2e"></span> Contributions</div>
+            </div>
+
+            <div class="calc-preset-label">Quick Scenarios</div>
+            <div class="calc-presets">
+                <button class="calc-preset" onclick="applyPreset(0, 100, 7, 30)">💼 Starter</button>
+                <button class="calc-preset" onclick="applyPreset(5000, 500, 8, 25)">🌱 Typical</button>
+                <button class="calc-preset" onclick="applyPreset(10000, 1000, 8, 20)">🚀 Aggressive</button>
+                <button class="calc-preset" onclick="applyPreset(50000, 2000, 7, 30)">🏆 Retirement</button>
+            </div>
+
+            <div class="calc-tip">
+                💡 Starting early matters more than investing a lot. Compound interest rewards time in the market.
+            </div>
+        </div>
     </div>
 
     <!-- ==================== NEWS ==================== -->
@@ -2831,6 +2958,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updateGreeting();
     renderHoldings();
     renderGoals();
+    runCompoundCalc();
     renderNews();
     renderMovers();
     renderXPBanner();
@@ -3407,6 +3535,7 @@ function switchPage(page) {
     document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.page === page));
     document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.page === page));
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (page === 'goals') setTimeout(runCompoundCalc, 50);
 }
 
 // ===== HOLDINGS =====
@@ -3610,6 +3739,140 @@ function getProjectedDate(g) {
     const projected = new Date();
     projected.setMonth(projected.getMonth() + months);
     return projected.toLocaleDateString([], { month: 'long', year: 'numeric' });
+}
+
+// ===== COMPOUND INTEREST CALCULATOR =====
+function runCompoundCalc() {
+    const start = parseFloat(document.getElementById('calcStart').value) || 0;
+    const monthly = parseFloat(document.getElementById('calcMonthly').value) || 0;
+    const rate = (parseFloat(document.getElementById('calcRate').value) || 0) / 100;
+    const years = parseInt(document.getElementById('calcYears').value) || 0;
+
+    // Year-by-year projection (monthly compounding)
+    const yearly = [];
+    const mRate = rate / 12;
+    let balance = start;
+    let contributions = start;
+
+    yearly.push({ year: 0, total: balance, contrib: contributions });
+    for (let y = 1; y <= years; y++) {
+        for (let m = 0; m < 12; m++) {
+            balance = balance * (1 + mRate) + monthly;
+            contributions += monthly;
+        }
+        yearly.push({ year: y, total: balance, contrib: contributions });
+    }
+
+    const final = balance;
+    const totalContrib = contributions;
+    const interest = final - totalContrib;
+    const multiplier = totalContrib > 0 ? (final / totalContrib).toFixed(1) : '0';
+
+    document.getElementById('calcFinal').textContent = '$' + Math.round(final).toLocaleString();
+    document.getElementById('calcMultiplier').textContent = multiplier + 'x your contributions';
+
+    const contribPct = final > 0 ? Math.round((totalContrib / final) * 100) : 0;
+    const interestPct = 100 - contribPct;
+    document.getElementById('calcBreakdown').innerHTML = `
+        <div class="calc-breakdown-item">
+            <div class="calc-breakdown-label">You Contributed</div>
+            <div class="calc-breakdown-val">$${Math.round(totalContrib).toLocaleString()}</div>
+            <div class="calc-breakdown-pct">${contribPct}% of total</div>
+        </div>
+        <div class="calc-breakdown-item">
+            <div class="calc-breakdown-label">Interest Earned</div>
+            <div class="calc-breakdown-val" style="color:var(--green-dark)">$${Math.round(interest).toLocaleString()}</div>
+            <div class="calc-breakdown-pct">${interestPct}% of total</div>
+        </div>
+    `;
+
+    drawCalcChart(yearly);
+}
+
+function drawCalcChart(yearly) {
+    const canvas = document.getElementById('calcChart');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.parentElement.getBoundingClientRect();
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    canvas.style.width = rect.width + 'px';
+    canvas.style.height = rect.height + 'px';
+    ctx.scale(dpr, dpr);
+
+    const w = rect.width;
+    const h = rect.height;
+    ctx.clearRect(0, 0, w, h);
+
+    const pad = { top: 10, bottom: 22, left: 4, right: 4 };
+    const maxVal = Math.max(...yearly.map(p => p.total)) || 1;
+
+    // Draw X-axis year labels (start, middle, end)
+    ctx.fillStyle = '#999';
+    ctx.font = '10px "DM Sans", sans-serif';
+    ctx.textAlign = 'center';
+    const years = yearly.length - 1;
+    [0, Math.floor(years / 2), years].forEach(y => {
+        const x = pad.left + (y / years) * (w - pad.left - pad.right);
+        ctx.fillText('Yr ' + y, x, h - 6);
+    });
+
+    // Helper to get Y from value
+    const getY = (val) => pad.top + (1 - val / maxVal) * (h - pad.top - pad.bottom);
+    const getX = (y) => pad.left + (y / years) * (w - pad.left - pad.right);
+
+    // Area fill for total
+    const totalGrad = ctx.createLinearGradient(0, pad.top, 0, h - pad.bottom);
+    totalGrad.addColorStop(0, 'rgba(76,175,80,0.4)');
+    totalGrad.addColorStop(1, 'rgba(76,175,80,0.05)');
+    ctx.beginPath();
+    yearly.forEach((p, i) => {
+        const x = getX(p.year);
+        const y = getY(p.total);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+    });
+    ctx.lineTo(getX(years), h - pad.bottom);
+    ctx.lineTo(getX(0), h - pad.bottom);
+    ctx.closePath();
+    ctx.fillStyle = totalGrad;
+    ctx.fill();
+
+    // Total line
+    ctx.beginPath();
+    yearly.forEach((p, i) => {
+        const x = getX(p.year);
+        const y = getY(p.total);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+    });
+    ctx.strokeStyle = '#4CAF50';
+    ctx.lineWidth = 2.5;
+    ctx.lineJoin = 'round';
+    ctx.stroke();
+
+    // Contribution line
+    ctx.beginPath();
+    yearly.forEach((p, i) => {
+        const x = getX(p.year);
+        const y = getY(p.contrib);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+    });
+    ctx.strokeStyle = '#1a5c2e';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([4, 3]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+}
+
+function applyPreset(start, monthly, rate, years) {
+    document.getElementById('calcStart').value = start;
+    document.getElementById('calcMonthly').value = monthly;
+    document.getElementById('calcRate').value = rate;
+    document.getElementById('calcYears').value = years;
+    runCompoundCalc();
 }
 
 function renderGoals() {
