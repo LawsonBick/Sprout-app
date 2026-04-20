@@ -597,6 +597,163 @@
         .lesson-dot.done { background: var(--green); }
         .lesson-dot.current { background: var(--green-light); box-shadow: 0 0 0 2px var(--green-pale); }
 
+        /* ===== GAMIFIED QUIZZES ===== */
+        .xp-banner {
+            background: linear-gradient(135deg, #1a5c2e 0%, #2d8a4e 60%, #4CAF50 100%);
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            margin-bottom: 16px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        .xp-banner::after {
+            content: '';
+            position: absolute; inset: 0;
+            background: radial-gradient(circle at top right, rgba(255,255,255,0.15), transparent 60%);
+            pointer-events: none;
+        }
+        .xp-row { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 10px; position: relative; z-index: 1; }
+        .xp-label { font-size: 12px; opacity: 0.85; margin-bottom: 2px; letter-spacing: 0.5px; text-transform: uppercase; }
+        .xp-points { font-family: 'DM Serif Display', serif; font-size: 30px; line-height: 1; }
+        .xp-level-badge {
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+        .xp-bar { height: 8px; background: rgba(255,255,255,0.25); border-radius: 4px; overflow: hidden; position: relative; z-index: 1; }
+        .xp-bar-fill { height: 100%; background: white; border-radius: 4px; transition: width 0.8s ease; box-shadow: 0 0 8px rgba(255,255,255,0.5); }
+        .xp-bar-label { font-size: 11px; opacity: 0.9; margin-top: 6px; position: relative; z-index: 1; }
+        .xp-stats { display: flex; gap: 14px; margin-top: 10px; position: relative; z-index: 1; }
+        .xp-stat { display: flex; align-items: center; gap: 4px; font-size: 12px; opacity: 0.95; }
+
+        .section-title-row { display: flex; justify-content: space-between; align-items: center; margin: 20px 2px 12px; }
+        .section-title { font-size: 16px; font-weight: 700; }
+        .section-sub { font-size: 11px; color: var(--text-muted); }
+
+        .quiz-card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 16px;
+            margin-bottom: 12px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            transition: transform 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .quiz-card:active { transform: scale(0.98); }
+        .quiz-card-icon {
+            width: 52px; height: 52px; border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 26px; flex-shrink: 0;
+        }
+        .quiz-card-info { flex: 1; min-width: 0; }
+        .quiz-card-title { font-weight: 700; font-size: 15px; margin-bottom: 2px; }
+        .quiz-card-desc { font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; line-height: 1.3; }
+        .quiz-card-meta { display: flex; gap: 10px; font-size: 11px; color: var(--text-muted); align-items: center; }
+        .quiz-reward { display: inline-flex; align-items: center; gap: 3px; color: #E65100; font-weight: 700; }
+        .quiz-card-done { background: rgba(45,138,78,0.1); color: var(--green-dark); padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; }
+
+        /* Quiz viewer */
+        .quiz-viewer { display: none; }
+        .quiz-viewer.active { display: block; }
+        .quiz-viewer-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+        .quiz-progress-track { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+        .quiz-progress-bar { height: 100%; background: var(--green-gradient); border-radius: 3px; transition: width 0.3s ease; }
+        .quiz-q-num { font-size: 12px; color: var(--text-muted); font-weight: 600; }
+        .quiz-question {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 14px;
+            box-shadow: var(--shadow);
+        }
+        .quiz-q-icon { font-size: 36px; margin-bottom: 10px; }
+        .quiz-q-text { font-size: 18px; font-weight: 700; line-height: 1.35; margin-bottom: 6px; }
+        .quiz-q-hint { font-size: 12px; color: var(--text-secondary); }
+        .quiz-answers { display: flex; flex-direction: column; gap: 10px; }
+        .quiz-answer {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 14px;
+            padding: 14px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .quiz-answer:not(:disabled):hover { border-color: var(--green); }
+        .quiz-answer:disabled { cursor: default; }
+        .quiz-answer-letter {
+            width: 26px; height: 26px; border-radius: 50%;
+            background: var(--bg-page);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 12px; flex-shrink: 0;
+            color: var(--text-secondary);
+        }
+        .quiz-answer.correct { border-color: var(--green); background: rgba(45,138,78,0.08); }
+        .quiz-answer.correct .quiz-answer-letter { background: var(--green); color: white; }
+        .quiz-answer.incorrect { border-color: #E53935; background: rgba(229,57,53,0.08); }
+        .quiz-answer.incorrect .quiz-answer-letter { background: #E53935; color: white; }
+        .quiz-feedback {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 16px;
+            margin-top: 14px;
+            border-left: 4px solid var(--green);
+            animation: slideFade 0.3s ease;
+        }
+        .quiz-feedback.wrong { border-left-color: #E53935; }
+        @keyframes slideFade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .quiz-feedback-title { font-weight: 700; font-size: 14px; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+        .quiz-feedback-text { font-size: 13px; line-height: 1.5; color: var(--text-secondary); }
+        .quiz-feedback-points {
+            display: inline-block; background: #FFF3E0; color: #E65100; padding: 4px 10px;
+            border-radius: 8px; font-size: 12px; font-weight: 700; margin-top: 8px;
+        }
+        .quiz-next-btn {
+            width: 100%; background: var(--green-gradient); color: white;
+            border: none; border-radius: 14px; padding: 14px; margin-top: 14px;
+            font-size: 15px; font-weight: 700; cursor: pointer;
+            font-family: inherit;
+        }
+
+        /* Completion screen */
+        .quiz-complete {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+        .quiz-complete-emoji { font-size: 64px; margin-bottom: 10px; animation: pop 0.5s ease; }
+        @keyframes pop { 0% { transform: scale(0); } 60% { transform: scale(1.2); } 100% { transform: scale(1); } }
+        .quiz-complete-title { font-family: 'DM Serif Display', serif; font-size: 26px; margin-bottom: 6px; }
+        .quiz-complete-sub { font-size: 14px; color: var(--text-secondary); margin-bottom: 20px; }
+        .quiz-complete-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 20px 0; }
+        .quiz-complete-stat { background: var(--bg-page); border-radius: 12px; padding: 14px 8px; }
+        .quiz-complete-stat-val { font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--green-dark); }
+        .quiz-complete-stat-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+        .quiz-complete-actions { display: flex; gap: 10px; margin-top: 18px; }
+        .quiz-complete-actions button {
+            flex: 1; padding: 12px; border: none; border-radius: 12px;
+            font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit;
+        }
+        .quiz-done-primary { background: var(--green-gradient); color: white; }
+        .quiz-done-secondary { background: var(--bg-page); color: var(--text-primary); }
+
         /* ===== COMMUNITY ===== */
         .community-post {
             background: var(--bg-card);
@@ -1794,11 +1951,23 @@
     <!-- ==================== LEARN ==================== -->
     <div class="page" id="page-learn">
         <div class="lesson-viewer" id="lessonViewer"></div>
+        <div class="quiz-viewer" id="quizViewer"></div>
         <div id="lessonList">
-            <div class="ai-card">
-                <div class="ai-label">📚 Learning Path</div>
-                <div class="ai-title">Build Your Knowledge</div>
-                <div class="ai-text">Start from the basics and work your way up. Each lesson takes 5-10 minutes and includes practical examples.</div>
+            <div id="xpBanner"></div>
+
+            <div class="section-title-row">
+                <div>
+                    <div class="section-title">🎮 Quick Quizzes</div>
+                    <div class="section-sub">Earn points as you learn the basics</div>
+                </div>
+            </div>
+            <div id="quizLessonsContainer"></div>
+
+            <div class="section-title-row">
+                <div>
+                    <div class="section-title">📚 In-Depth Lessons</div>
+                    <div class="section-sub">Full reads with practical examples</div>
+                </div>
             </div>
             <div id="lessonsContainer"></div>
         </div>
@@ -2126,6 +2295,230 @@ let movers = [
     { ticker: 'SOL', name: 'Solana', price: 145, change: 5.1, color: '#9945FF', crypto: true },
 ];
 
+// ===== GAMIFIED QUIZZES =====
+let userXP = 340;
+let completedQuizIds = ['stocks-basics'];
+let dayStreak = 3;
+
+const quizLessons = [
+    {
+        id: 'stocks-basics',
+        title: 'What is a Stock?',
+        desc: 'Learn what stocks are and how they work.',
+        icon: '📈',
+        color: '#1565C0',
+        bg: '#E3F2FD',
+        reward: 50,
+        questions: [
+            {
+                q: 'When you buy a stock, what are you actually buying?',
+                icon: '🤔',
+                answers: [
+                    'A loan given to the company',
+                    'A tiny piece of ownership in the company',
+                    'A guaranteed return on your money',
+                    'A physical product from the company',
+                ],
+                correct: 1,
+                explain: 'Buying a stock makes you a part-owner (shareholder) of that company. As the company grows in value, so does your ownership stake.',
+            },
+            {
+                q: 'What are two main ways stocks can make you money?',
+                icon: '💰',
+                answers: [
+                    'Interest payments and bonuses',
+                    'Price appreciation and dividends',
+                    'Taxes and fees',
+                    'Discounts and cashback',
+                ],
+                correct: 1,
+                explain: 'Stocks make money through price appreciation (the stock price going up) and dividends (some companies share profits with shareholders as cash).',
+            },
+            {
+                q: 'True or False: Stocks always go up over time.',
+                icon: '⚠️',
+                answers: ['True — stocks never lose value long-term', 'False — stocks can go up OR down, especially short-term'],
+                correct: 1,
+                explain: 'Stock prices fluctuate daily and can drop significantly. The stock market has historically trended up over the long term, but there are no guarantees — that\'s why diversification matters.',
+            },
+        ],
+    },
+    {
+        id: 'etfs-basics',
+        title: 'ETFs Explained',
+        desc: 'Why ETFs are great for beginners.',
+        icon: '📦',
+        color: '#00695C',
+        bg: '#E0F2F1',
+        reward: 50,
+        questions: [
+            {
+                q: 'What does ETF stand for?',
+                icon: '🔤',
+                answers: [
+                    'Easy Trading Fund',
+                    'Exchange-Traded Fund',
+                    'Equity Transfer Fund',
+                    'Electronic Tax Form',
+                ],
+                correct: 1,
+                explain: 'ETF stands for Exchange-Traded Fund. It\'s a basket of investments (like stocks or bonds) that trades on an exchange just like a single stock.',
+            },
+            {
+                q: 'If you buy one share of VOO (an S&P 500 ETF), how many companies do you own a piece of?',
+                icon: '🏢',
+                answers: [
+                    'Just 1 company',
+                    'About 50 companies',
+                    'About 500 of the largest US companies',
+                    'Every public company in the world',
+                ],
+                correct: 2,
+                explain: 'VOO tracks the S&P 500, so a single share gives you exposure to about 500 of the largest US companies — instant diversification in one purchase.',
+            },
+            {
+                q: 'Why are ETFs popular with beginners?',
+                icon: '🌱',
+                answers: [
+                    'They offer instant diversification and low fees',
+                    'They guarantee higher returns than individual stocks',
+                    'They pay higher interest than savings accounts',
+                    'They never lose value',
+                ],
+                correct: 0,
+                explain: 'ETFs let you own many assets at once (diversification) and usually charge very low fees. They don\'t guarantee returns, but they spread risk much better than picking single stocks.',
+            },
+        ],
+    },
+    {
+        id: 'compound-interest',
+        title: 'Compound Interest Magic',
+        desc: 'The 8th wonder of the world.',
+        icon: '⚡',
+        color: '#E65100',
+        bg: '#FFF3E0',
+        reward: 75,
+        questions: [
+            {
+                q: 'What is compound interest?',
+                icon: '🔄',
+                answers: [
+                    'Interest paid only on your original deposit',
+                    'Interest paid on your principal AND previously earned interest',
+                    'A penalty fee from your bank',
+                    'Tax on investment gains',
+                ],
+                correct: 1,
+                explain: 'Compound interest is earning interest on your interest. Over time, your money grows exponentially because each year you earn on a larger balance.',
+            },
+            {
+                q: 'Using the Rule of 72: at an 8% return, roughly how long does it take your money to double?',
+                icon: '🧮',
+                answers: [
+                    'About 3 years',
+                    'About 9 years',
+                    'About 20 years',
+                    'About 50 years',
+                ],
+                correct: 1,
+                explain: 'The Rule of 72: divide 72 by your annual return rate. 72 ÷ 8 = 9 years to double. Starting early is powerful — each doubling builds on the last one.',
+            },
+            {
+                q: 'Sam invests $200/month starting at age 25. Alex invests $400/month starting at 35. Who likely has more at 65?',
+                icon: '⏳',
+                answers: [
+                    'Alex — they invested double each month',
+                    'They\'ll have roughly equal amounts',
+                    'Sam — starting earlier gives compounding more time to work',
+                    'Neither — they\'ll both lose to inflation',
+                ],
+                correct: 2,
+                explain: 'Time is the most powerful ingredient in compounding. Sam\'s extra 10 years let their money grow exponentially — often ending up with MORE than Alex despite investing less total.',
+            },
+            {
+                q: 'What\'s the single best thing a beginner can do to grow wealth?',
+                icon: '🌱',
+                answers: [
+                    'Wait until they have a lot of money to invest',
+                    'Try to time market highs and lows',
+                    'Start investing something NOW, even a small amount',
+                    'Keep all money in a savings account',
+                ],
+                correct: 2,
+                explain: 'Time in the market beats timing the market. Even small amounts invested early add up massively thanks to compounding. Starting is more important than the amount.',
+            },
+        ],
+    },
+    {
+        id: 'diversification',
+        title: 'Diversification 101',
+        desc: 'Don\'t put all eggs in one basket.',
+        icon: '🧺',
+        color: '#7B1FA2',
+        bg: '#F3E5F5',
+        reward: 75,
+        questions: [
+            {
+                q: 'What does "don\'t put all your eggs in one basket" mean in investing?',
+                icon: '🥚',
+                answers: [
+                    'Invest only in one really good company',
+                    'Spread your money across different investments to reduce risk',
+                    'Keep all money in cash',
+                    'Only buy what your friends are buying',
+                ],
+                correct: 1,
+                explain: 'Diversification means spreading your money across many investments. If one drops, others may hold steady or rise — smoothing out your returns and protecting you from disaster.',
+            },
+            {
+                q: 'Which of these portfolios is MOST diversified?',
+                icon: '🧩',
+                answers: [
+                    '100% in one tech company stock',
+                    '10 different tech stocks',
+                    'A mix of US stocks, international stocks, bonds, and real estate',
+                    'All cash under the mattress',
+                ],
+                correct: 2,
+                explain: 'True diversification spans different asset classes (stocks, bonds, real estate) AND different sectors and regions. Owning 10 tech stocks is NOT diversified — they often move together.',
+            },
+            {
+                q: 'Why do stocks and bonds pair well together?',
+                icon: '⚖️',
+                answers: [
+                    'They always move in the same direction',
+                    'They tend to move in opposite directions, balancing each other',
+                    'Bonds are always better than stocks',
+                    'They\'re the same investment',
+                ],
+                correct: 1,
+                explain: 'Stocks and bonds often move in opposite directions. When stocks drop, bonds often rise (or hold steady). This balance stabilizes your portfolio — key to long-term investing.',
+            },
+            {
+                q: 'What\'s the EASIEST way for a beginner to get diversified?',
+                icon: '✨',
+                answers: [
+                    'Research and buy 50 individual stocks',
+                    'Buy a broad market ETF like VOO or VTI',
+                    'Put everything in one stock you believe in',
+                    'Only buy gold',
+                ],
+                correct: 1,
+                explain: 'A single share of a broad ETF like VTI or VOO instantly diversifies you across hundreds of companies. It\'s the simplest, cheapest way to get diversified.',
+            },
+        ],
+    },
+];
+
+const xpLevels = [
+    { min: 0, name: 'Seedling', emoji: '🌱' },
+    { min: 200, name: 'Sprout', emoji: '🌿' },
+    { min: 500, name: 'Grower', emoji: '🌳' },
+    { min: 1000, name: 'Investor', emoji: '💼' },
+    { min: 2000, name: 'Strategist', emoji: '🎯' },
+    { min: 3500, name: 'Pro', emoji: '🏆' },
+];
+
 const lessons = [
     {
         title: 'What is Investing?',
@@ -2440,6 +2833,8 @@ document.addEventListener('DOMContentLoaded', () => {
     renderGoals();
     renderNews();
     renderMovers();
+    renderXPBanner();
+    renderQuizLessons();
     renderLessons();
     renderCommunity();
     renderProfile();
@@ -3506,6 +3901,237 @@ function renderMovers() {
 }
 
 // ===== LESSONS =====
+function getUserLevel(xp) {
+    let level = xpLevels[0];
+    let next = xpLevels[xpLevels.length - 1];
+    for (let i = 0; i < xpLevels.length; i++) {
+        if (xp >= xpLevels[i].min) {
+            level = xpLevels[i];
+            next = xpLevels[i + 1] || null;
+        }
+    }
+    return { level, next };
+}
+
+function renderXPBanner() {
+    const el = document.getElementById('xpBanner');
+    if (!el) return;
+    const { level, next } = getUserLevel(userXP);
+    const progressMin = level.min;
+    const progressMax = next ? next.min : level.min + 1000;
+    const pct = Math.min(100, ((userXP - progressMin) / (progressMax - progressMin)) * 100);
+    const toNext = next ? next.min - userXP : 0;
+
+    el.innerHTML = `
+        <div class="xp-banner">
+            <div class="xp-row">
+                <div>
+                    <div class="xp-label">Total XP</div>
+                    <div class="xp-points">${level.emoji} ${userXP.toLocaleString()}</div>
+                </div>
+                <div class="xp-level-badge">${level.name}</div>
+            </div>
+            <div class="xp-bar"><div class="xp-bar-fill" style="width:${pct}%"></div></div>
+            <div class="xp-bar-label">${next ? `${toNext} XP to ${next.emoji} ${next.name}` : 'Max level reached!'}</div>
+            <div class="xp-stats">
+                <div class="xp-stat">🔥 ${dayStreak}-day streak</div>
+                <div class="xp-stat">✓ ${completedQuizIds.length} quiz${completedQuizIds.length !== 1 ? 'zes' : ''} done</div>
+            </div>
+        </div>
+    `;
+}
+
+function renderQuizLessons() {
+    const container = document.getElementById('quizLessonsContainer');
+    if (!container) return;
+    container.innerHTML = quizLessons.map(q => {
+        const done = completedQuizIds.includes(q.id);
+        return `
+            <div class="quiz-card" onclick="openQuiz('${q.id}')">
+                <div class="quiz-card-icon" style="background:${q.bg}; color:${q.color}">${q.icon}</div>
+                <div class="quiz-card-info">
+                    <div class="quiz-card-title">${q.title}</div>
+                    <div class="quiz-card-desc">${q.desc}</div>
+                    <div class="quiz-card-meta">
+                        <span>${q.questions.length} questions</span>
+                        <span>·</span>
+                        <span class="quiz-reward">⚡ +${q.reward} XP</span>
+                        ${done ? '<span class="quiz-card-done">✓ Completed</span>' : ''}
+                    </div>
+                </div>
+                <div style="font-size:20px; color:var(--text-muted)">›</div>
+            </div>
+        `;
+    }).join('');
+}
+
+let currentQuiz = null;
+let currentQuestionIdx = 0;
+let currentQuizScore = 0;
+let currentAnswered = false;
+
+function openQuiz(quizId) {
+    const quiz = quizLessons.find(q => q.id === quizId);
+    if (!quiz) return;
+    currentQuiz = quiz;
+    currentQuestionIdx = 0;
+    currentQuizScore = 0;
+    currentAnswered = false;
+
+    document.getElementById('lessonList').style.display = 'none';
+    document.getElementById('lessonViewer').classList.remove('active');
+    const viewer = document.getElementById('quizViewer');
+    viewer.classList.add('active');
+    renderQuizQuestion();
+    viewer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function renderQuizQuestion() {
+    const quiz = currentQuiz;
+    const qIdx = currentQuestionIdx;
+    const q = quiz.questions[qIdx];
+    const total = quiz.questions.length;
+    const progressPct = (qIdx / total) * 100;
+
+    const viewer = document.getElementById('quizViewer');
+    viewer.innerHTML = `
+        <div class="quiz-viewer-header">
+            <button class="back-btn" onclick="exitQuiz()">←</button>
+            <div class="quiz-progress-track">
+                <div class="quiz-progress-bar" style="width:${progressPct}%"></div>
+            </div>
+            <div class="quiz-q-num">${qIdx + 1} / ${total}</div>
+        </div>
+        <div class="quiz-question">
+            <div class="quiz-q-icon">${q.icon}</div>
+            <div class="quiz-q-text">${q.q}</div>
+            <div class="quiz-q-hint">Tap an answer to continue</div>
+        </div>
+        <div class="quiz-answers" id="quizAnswers">
+            ${q.answers.map((a, i) => `
+                <button class="quiz-answer" onclick="answerQuiz(${i})" data-idx="${i}">
+                    <div class="quiz-answer-letter">${String.fromCharCode(65 + i)}</div>
+                    <div>${a}</div>
+                </button>
+            `).join('')}
+        </div>
+        <div id="quizFeedback"></div>
+    `;
+    currentAnswered = false;
+}
+
+function answerQuiz(selected) {
+    if (currentAnswered) return;
+    currentAnswered = true;
+
+    const q = currentQuiz.questions[currentQuestionIdx];
+    const correctIdx = q.correct;
+    const isCorrect = selected === correctIdx;
+    if (isCorrect) currentQuizScore++;
+
+    // Update answer buttons
+    document.querySelectorAll('.quiz-answer').forEach(btn => {
+        const idx = parseInt(btn.dataset.idx);
+        btn.disabled = true;
+        if (idx === correctIdx) btn.classList.add('correct');
+        else if (idx === selected) btn.classList.add('incorrect');
+    });
+
+    // Award XP per correct question
+    const perQPoints = Math.round(currentQuiz.reward / currentQuiz.questions.length);
+    const earned = isCorrect ? perQPoints : Math.round(perQPoints * 0.25);
+
+    const isLast = currentQuestionIdx === currentQuiz.questions.length - 1;
+    const feedbackEl = document.getElementById('quizFeedback');
+    feedbackEl.innerHTML = `
+        <div class="quiz-feedback ${isCorrect ? '' : 'wrong'}">
+            <div class="quiz-feedback-title">
+                ${isCorrect ? '✅ Correct!' : '💡 Not quite'}
+            </div>
+            <div class="quiz-feedback-text">${q.explain}</div>
+            <div class="quiz-feedback-points">+${earned} XP</div>
+        </div>
+        <button class="quiz-next-btn" onclick="${isLast ? 'finishQuiz()' : 'nextQuestion()'}">
+            ${isLast ? 'See Results →' : 'Next Question →'}
+        </button>
+    `;
+
+    // Award partial XP immediately
+    userXP += earned;
+    feedbackEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function nextQuestion() {
+    currentQuestionIdx++;
+    renderQuizQuestion();
+}
+
+function finishQuiz() {
+    const quiz = currentQuiz;
+    const total = quiz.questions.length;
+    const score = currentQuizScore;
+    const alreadyDone = completedQuizIds.includes(quiz.id);
+    const pctCorrect = Math.round((score / total) * 100);
+
+    // Completion bonus on first finish
+    let bonusXP = 0;
+    if (!alreadyDone) {
+        bonusXP = 25;
+        if (score === total) bonusXP += 50; // perfect score bonus
+        userXP += bonusXP;
+        completedQuizIds.push(quiz.id);
+    }
+
+    const isPerfect = score === total;
+    const emoji = isPerfect ? '🏆' : score >= total * 0.66 ? '🎉' : '💪';
+    const title = isPerfect ? 'Perfect Score!' : score >= total * 0.66 ? 'Great work!' : 'Keep practicing!';
+    const sub = isPerfect
+        ? 'You nailed every question.'
+        : `You got ${score} out of ${total} right.`;
+
+    const viewer = document.getElementById('quizViewer');
+    viewer.innerHTML = `
+        <div class="quiz-complete">
+            <div class="quiz-complete-emoji">${emoji}</div>
+            <div class="quiz-complete-title">${title}</div>
+            <div class="quiz-complete-sub">${sub}</div>
+            <div class="quiz-complete-stats">
+                <div class="quiz-complete-stat">
+                    <div class="quiz-complete-stat-val">${pctCorrect}%</div>
+                    <div class="quiz-complete-stat-label">Accuracy</div>
+                </div>
+                <div class="quiz-complete-stat">
+                    <div class="quiz-complete-stat-val">${score}/${total}</div>
+                    <div class="quiz-complete-stat-label">Correct</div>
+                </div>
+                <div class="quiz-complete-stat">
+                    <div class="quiz-complete-stat-val">+${bonusXP || 0}</div>
+                    <div class="quiz-complete-stat-label">Bonus XP</div>
+                </div>
+            </div>
+            ${isPerfect && bonusXP ? '<div style="color:#E65100; font-weight:700; font-size:13px;">⚡ Perfect score bonus: +50 XP!</div>' : ''}
+            <div class="quiz-complete-actions">
+                <button class="quiz-done-secondary" onclick="exitQuiz()">Back to Learn</button>
+                <button class="quiz-done-primary" onclick="openQuiz('${getNextQuizId()}')">Next Quiz →</button>
+            </div>
+        </div>
+    `;
+    renderXPBanner();
+    renderQuizLessons();
+}
+
+function getNextQuizId() {
+    const currentIdx = quizLessons.findIndex(q => q.id === currentQuiz.id);
+    const next = quizLessons[(currentIdx + 1) % quizLessons.length];
+    return next.id;
+}
+
+function exitQuiz() {
+    document.getElementById('quizViewer').classList.remove('active');
+    document.getElementById('lessonList').style.display = 'block';
+    currentQuiz = null;
+}
+
 function renderLessons() {
     const container = document.getElementById('lessonsContainer');
     container.innerHTML = lessons.map((l, i) => {
