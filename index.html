@@ -555,6 +555,34 @@
 
         .calc-tip { background: rgba(45,138,78,0.08); border-left: 3px solid var(--green); border-radius: 8px; padding: 10px 12px; font-size: 12px; color: var(--text-secondary); line-height: 1.45; }
 
+        /* ===== WATCHLIST MODAL ===== */
+        .wl-header { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+        .wl-title { font-family: 'DM Serif Display', serif; font-size: 24px; }
+        .wl-subtitle { font-size: 13px; color: var(--text-secondary); margin-bottom: 14px; }
+        .wl-tabs { display: flex; gap: 6px; background: var(--bg-page); padding: 4px; border-radius: 12px; margin-bottom: 14px; }
+        .wl-tab { flex: 1; padding: 8px 0; border: none; background: transparent; font-size: 13px; font-weight: 600; border-radius: 9px; cursor: pointer; color: var(--text-secondary); font-family: inherit; }
+        .wl-tab.active { background: var(--bg-card); color: var(--text-primary); box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+        .wl-list {}
+        .wl-item {
+            display: flex; align-items: center; gap: 12px;
+            padding: 14px 4px; border-bottom: 1px solid var(--border);
+            cursor: pointer;
+        }
+        .wl-item:last-child { border-bottom: none; }
+        .wl-rank { font-size: 13px; font-weight: 700; color: var(--text-muted); width: 22px; }
+        .wl-icon { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; flex-shrink: 0; }
+        .wl-info { flex: 1; min-width: 0; }
+        .wl-name { font-weight: 700; font-size: 15px; display: flex; align-items: center; gap: 6px; }
+        .wl-tag { font-size: 9px; background: var(--bg-page); color: var(--text-secondary); padding: 1px 6px; border-radius: 4px; font-weight: 600; }
+        .wl-desc { font-size: 12px; color: var(--text-secondary); margin-top: 1px; }
+        .wl-right { text-align: right; }
+        .wl-price { font-weight: 700; font-size: 14px; }
+        .wl-change { font-size: 12px; font-weight: 600; margin-top: 2px; }
+        .wl-change.up { color: var(--green-dark); }
+        .wl-change.down { color: #E53935; }
+        .wl-empty { text-align: center; padding: 32px 16px; color: var(--text-muted); font-size: 13px; }
+        .wl-refresh { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 10px; font-size: 11px; color: var(--text-muted); }
+
         /* ===== NEWS ===== */
         .news-item {
             display: flex;
@@ -1909,7 +1937,7 @@
                 <div class="quick-action-icon">➕</div>
                 <div class="quick-action-label">Add Stock</div>
             </div>
-            <div class="quick-action" onclick="showToast('Watchlist coming soon!')">
+            <div class="quick-action" onclick="openWatchlist()">
                 <div class="quick-action-icon">👁</div>
                 <div class="quick-action-label">Watchlist</div>
             </div>
@@ -2351,6 +2379,14 @@
     <div class="modal">
         <div class="modal-handle"></div>
         <div id="goalDetailContent"></div>
+    </div>
+</div>
+
+<!-- WATCHLIST MODAL -->
+<div class="modal-overlay" id="watchlistModal">
+    <div class="modal">
+        <div class="modal-handle"></div>
+        <div id="watchlistContent"></div>
     </div>
 </div>
 
@@ -4140,6 +4176,74 @@ function renderNews() {
             </div>
         </div>
     `).join('');
+}
+
+// ===== WATCHLIST =====
+let watchlistFilter = 'all'; // all | stocks | crypto | gainers | losers
+
+function openWatchlist() {
+    watchlistFilter = 'all';
+    document.getElementById('watchlistModal').classList.add('show');
+    renderWatchlist();
+    // Refresh data in background
+    fetchWeeklyMovers().then(() => {
+        if (document.getElementById('watchlistModal').classList.contains('show')) renderWatchlist();
+    });
+}
+
+function setWatchlistFilter(filter) {
+    watchlistFilter = filter;
+    renderWatchlist();
+}
+
+function renderWatchlist() {
+    const content = document.getElementById('watchlistContent');
+    if (!content) return;
+
+    let items = [...movers];
+    if (watchlistFilter === 'stocks') items = items.filter(m => !m.crypto);
+    else if (watchlistFilter === 'crypto') items = items.filter(m => m.crypto);
+    else if (watchlistFilter === 'gainers') items = items.filter(m => m.change > 0).sort((a, b) => b.change - a.change);
+    else if (watchlistFilter === 'losers') items = items.filter(m => m.change < 0).sort((a, b) => a.change - b.change);
+
+    const formatPrice = (m) => {
+        if (m.price >= 10000) return '$' + m.price.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+        return '$' + m.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    };
+
+    const listHtml = items.length === 0
+        ? '<div class="wl-empty">No items match this filter yet. Data is still loading...</div>'
+        : items.map((m, i) => `
+            <div class="wl-item" onclick="closeModals(); openStockChart('${m.ticker}', '${m.name.replace(/'/g, "\\'")}', '${m.color}')">
+                <div class="wl-rank">${i + 1}</div>
+                <div class="wl-icon" style="background:${m.color}15; color:${m.color}">${m.crypto ? '₿' : m.ticker.substring(0, 2)}</div>
+                <div class="wl-info">
+                    <div class="wl-name">${m.ticker} ${m.crypto ? '<span class="wl-tag">CRYPTO</span>' : '<span class="wl-tag">STOCK</span>'}</div>
+                    <div class="wl-desc">${m.name}</div>
+                </div>
+                <div class="wl-right">
+                    <div class="wl-price">${formatPrice(m)}</div>
+                    <div class="wl-change ${m.change >= 0 ? 'up' : 'down'}">${m.change >= 0 ? '▲' : '▼'} ${m.change >= 0 ? '+' : ''}${m.change.toFixed(2)}%</div>
+                </div>
+            </div>
+        `).join('');
+
+    content.innerHTML = `
+        <div class="wl-header">
+            <div style="font-size:28px">👁</div>
+            <div class="wl-title">Watchlist</div>
+        </div>
+        <div class="wl-subtitle">This week's biggest moves — tap any row to open the chart</div>
+        <div class="wl-tabs">
+            <button class="wl-tab ${watchlistFilter === 'all' ? 'active' : ''}" onclick="setWatchlistFilter('all')">All</button>
+            <button class="wl-tab ${watchlistFilter === 'stocks' ? 'active' : ''}" onclick="setWatchlistFilter('stocks')">Stocks</button>
+            <button class="wl-tab ${watchlistFilter === 'crypto' ? 'active' : ''}" onclick="setWatchlistFilter('crypto')">Crypto</button>
+            <button class="wl-tab ${watchlistFilter === 'gainers' ? 'active' : ''}" onclick="setWatchlistFilter('gainers')">Gainers</button>
+            <button class="wl-tab ${watchlistFilter === 'losers' ? 'active' : ''}" onclick="setWatchlistFilter('losers')">Losers</button>
+        </div>
+        <div class="wl-list">${listHtml}</div>
+        <div class="wl-refresh">🔄 Data refreshes automatically</div>
+    `;
 }
 
 function renderMovers() {
